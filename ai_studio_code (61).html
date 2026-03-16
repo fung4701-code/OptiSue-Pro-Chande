@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiSuite Pro - Clínica (Actualizado)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8fafc; }
+        .nav-item { transition: all 0.2s; border-left: 4px solid transparent; }
+        .nav-item:hover { background-color: #f1f5f9; color: #2563eb; }
+        .nav-item.active { background-color: #eff6ff; color: #2563eb; border-left-color: #2563eb; }
+        .product-card { transition: all 0.2s ease; background: white; cursor: pointer; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); border-color: #93c5fd; }
+        .rec-badge { display: none; }
+        .recommended .rec-badge { display: inline-flex; }
+        .recommended { ring: 2px solid #3b82f6; background-color: #f0f9ff; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+        .rx-input { text-align: center; font-weight: 600; padding: 4px 2px; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%; font-size: 13px; }
+        .rx-input:focus { outline: none; border-color: #3b82f6; ring: 2px; background-color: #eff6ff; }
+        .rx-header { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; }
+        .gen-input { width: 100%; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; transition: border 0.2s; }
+        .gen-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
+        #admin-modal { background-color: rgba(0,0,0,0.5); }
+        .filter-chip { transition: all 0.2s; cursor: pointer; user-select: none; white-space: nowrap; }
+        .filter-chip.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .filter-chip.inactive { background-color: white; color: #64748b; border-color: #e2e8f0; }
+        .filter-chip.new-active { background-color: #fef2f2; color: #ef4444; border-color: #fecaca; font-weight: bold; }
+        
+        .sub-chip { transition: all 0.2s ease; cursor: pointer; user-select: none; white-space: nowrap; }
+        .sub-chip.active { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; font-weight: bold; }
+        .sub-chip.inactive { background-color: transparent; color: #94a3b8; border-color: transparent; }
+        .sub-chip.inactive:hover { background-color: #f8fafc; color: #64748b; }
+
+        .tool-btn { @apply flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border; }
+        .tool-btn-active { @apply bg-blue-100 text-blue-700 border-blue-200; }
+        .tool-btn-inactive { @apply bg-white text-slate-500 border-slate-200 hover:bg-slate-50; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="h-screen flex text-slate-800 overflow-hidden">
+
+    <!-- MENÚ LATERAL -->
+    <nav class="w-20 bg-white border-r border-slate-200 flex flex-col items-center py-6 z-20 shadow-lg justify-between">
+        <div class="flex flex-col items-center w-full">
+            <div class="mb-8 w-12 h-12 flex items-center justify-center">
+                <img id="main-logo" src="" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <button onclick="window.setCategory('services')" id="btn-services" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-user-doctor text-xl"></i><span class="text-[9px] font-bold uppercase">Clínica</span></button>
+            <button onclick="window.setCategory('frames')" id="btn-frames" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-glasses text-xl"></i><span class="text-[9px] font-bold uppercase">Monturas</span></button>
+            <button onclick="window.setCategory('lenses')" id="btn-lenses" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-layer-group text-xl"></i><span class="text-[9px] font-bold uppercase">Cristales</span></button>
+            <button onclick="window.setCategory('contacts')" id="btn-contacts" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-droplet text-xl"></i><span class="text-[9px] font-bold uppercase">L.C.</span></button>
+        </div>
+        <button onclick="window.toggleModal(true)" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1 hover:text-slate-600 mb-2">
+            <i class="fa-solid fa-gear text-xl"></i><span class="text-[9px] font-bold uppercase">Config</span>
+        </button>
+    </nav>
+
+    <!-- PANEL CENTRAL -->
+    <aside class="w-[440px] bg-white border-r border-slate-200 flex flex-col z-10">
+        <div class="flex-1 overflow-y-auto">
+            
+            <!-- MEMBRETE -->
+            <div class="bg-white p-5 border-b border-slate-200 text-center relative">
+                <h1 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Lic. Alexander de J. Fung R.</h1>
+                <p class="text-xs text-slate-600 font-semibold mt-0.5">Optometrista - Contactólogo</p>
+                <p class="text-[10px] text-slate-400 mb-2">N° COV: 115 &nbsp;|&nbsp; M.P.P.S: 63</p>
+                <div class="w-full border-t border-slate-100 pt-2 flex justify-center gap-3 text-[10px] text-slate-500">
+                    <span class="flex items-center gap-1"><i class="fa-brands fa-whatsapp text-green-600"></i> (58) 412-9442918</span>
+                    <span class="flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600"></i> @Optmalexfung</span>
+                </div>
+            </div>
+
+            <!-- DATOS PACIENTE Y RX -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50">
+                <h2 class="font-bold text-xs uppercase text-slate-500 mb-2"><i class="fa-solid fa-address-card"></i> Datos Paciente</h2>
+                <div class="space-y-2 mb-4">
+                    <input id="patient-name" type="text" placeholder="Nombre completo..." class="gen-input font-bold text-sm py-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input id="patient-phone" type="text" placeholder="Teléfono/WhatsApp" class="gen-input col-span-2">
+                        <input id="patient-age" type="number" placeholder="Edad" class="gen-input">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="patient-id" type="text" placeholder="Cédula / DNI / ID" class="gen-input">
+                        <input id="patient-ot" type="text" placeholder="N° Orden (OT)" class="gen-input bg-blue-50 text-blue-700 font-bold" title="Orden de Trabajo">
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 shadow-inner mb-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-blue-900 uppercase"><i class="fa-solid fa-glasses"></i> Rx Final</span>
+                    </div>
+                    <div class="grid grid-cols-5 gap-1 mb-1 px-1">
+                        <div class="rx-header text-left">Ojo</div><div class="rx-header">Esf</div><div class="rx-header">Cil</div><div class="rx-header text-blue-600">Eje</div><div class="rx-header">Add</div>
+                    </div>
+                    <div class="grid grid-cols-5 gap-1 mb-2 items-center px-1">
+                        <div class="font-bold text-blue-800 text-sm pl-1">OD</div>
+                        <input type="number" step="0.25" id="odSphere" placeholder="+0.00" oninput="window.updateRecommendations()" class="rx-input">
+                        <input type="number" step="0.25" max="0" id="odCyl" placeholder="-0.00" oninput="window.updateRecommendations()" class="rx-input">
+                        <input type="number" step="1" min="0" max="180" id="odAxis" placeholder="0°" class="rx-input border-blue-200 bg-white">
+                        <input type="number" step="0.25" min="0" id="odAdd" placeholder="Add" oninput="window.updateRecommendations()" class="rx-input">
+                    </div>
+                    <div class="grid grid-cols-5 gap-1 items-center px-1">
+                        <div class="font-bold text-blue-800 text-sm pl-1">OI</div>
+                        <input type="number" step="0.25" id="oiSphere" placeholder="+0.00" oninput="window.updateRecommendations()" class="rx-input">
+                        <input type="number" step="0.25" max="0" id="oiCyl" placeholder="-0.00" oninput="window.updateRecommendations()" class="rx-input">
+                        <input type="number" step="1" min="0" max="180" id="oiAxis" placeholder="0°" class="rx-input border-blue-200 bg-white">
+                        <input type="number" step="0.25" min="0" id="oiAdd" placeholder="Add" oninput="window.updateRecommendations()" class="rx-input">
+                    </div>
+                    <div id="rx-diagnosis" class="mt-3 text-[11px] bg-white text-blue-800 p-2 rounded border border-blue-200 hidden">
+                        <div class="font-bold mb-1"><i class="fa-solid fa-stethoscope"></i> Análisis:</div>
+                        <span id="diagnosis-text" class="block italic leading-tight"></span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-600 uppercase"><i class="fa-solid fa-ruler-combined"></i> Medidas (mm)</span>
+                        <span class="text-[10px] bg-slate-200 px-2 rounded text-slate-500 font-bold" id="total-dp-display">DP Total: --</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="text-[10px] font-bold text-slate-400">OJO</div><div class="text-[10px] font-bold text-slate-400">DNP</div><div class="text-[10px] font-bold text-slate-400">ALTURA</div>
+                        <div class="text-sm font-bold text-blue-800 flex items-center justify-center">OD</div>
+                        <input type="number" id="odDnp" placeholder="32" class="rx-input bg-white" oninput="window.calcTotalDP()">
+                        <input type="number" id="odAlt" placeholder="20" class="rx-input bg-white">
+                        <div class="text-sm font-bold text-blue-800 flex items-center justify-center">OI</div>
+                        <input type="number" id="oiDnp" placeholder="32" class="rx-input bg-white" oninput="window.calcTotalDP()">
+                        <input type="number" id="oiAlt" placeholder="20" class="rx-input bg-white">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 bg-white border-t border-slate-200">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-600 uppercase">Lista de Compra</span>
+                    <span id="cart-count" class="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+                </div>
+                <div class="space-y-2 min-h-[100px]" id="cart-container">
+                    <div class="flex flex-col items-center justify-center py-4 text-slate-300 border border-dashed border-slate-200 rounded">
+                        <i class="fa-solid fa-cart-shopping text-xl mb-1"></i><p class="text-xs">Carrito vacío</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PIE DE PÁGINA FINANCIERO -->
+        <div class="p-5 border-t border-slate-200 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-20 bg-white">
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-slate-400 uppercase">Total Estimado</span>
+                <span class="text-xl font-bold text-slate-800" id="cart-total">$0.00</span>
+            </div>
+            <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-100">
+                <span class="text-xs font-bold text-slate-500 uppercase"><i class="fa-solid fa-hand-holding-dollar"></i> Abono Inicial</span>
+                <div class="relative w-24">
+                    <span class="absolute left-2 top-1 text-slate-400 text-sm">$</span>
+                    <input type="number" id="abono-input" oninput="window.updateBalance()" class="w-full pl-5 pr-2 py-1 bg-slate-50 border border-slate-200 rounded font-bold text-slate-700 text-sm text-right outline-none focus:border-blue-400 focus:bg-white transition" placeholder="0.00">
+                </div>
+            </div>
+            <div class="flex justify-between items-end mb-4">
+                <span class="text-xs font-bold text-blue-600 uppercase">Saldo Pendiente</span>
+                <span class="text-2xl font-black text-blue-700" id="cart-saldo">$0.00</span>
+            </div>
+            <button onclick="window.sendWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold text-sm transition shadow-lg flex justify-center gap-2 items-center">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Receta / Orden
+            </button>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="flex-1 flex flex-col bg-slate-50 relative overflow-hidden">
+        <header class="bg-white px-8 pt-5 pb-3 border-b border-slate-200 shadow-sm z-10 flex flex-col gap-3">
+            
+            <!-- Buscador y Título -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800" id="page-title">Bienvenido</h1>
+                    <p class="text-xs text-slate-500" id="page-subtitle">Sistema Clínico</p>
+                </div>
+                <div class="relative w-64 flex-shrink-0">
+                    <input type="text" id="search-input" onkeyup="window.renderGrid()" placeholder="Buscar producto..." class="w-full pl-9 pr-4 py-2 bg-slate-100 border-transparent rounded-full text-sm focus:bg-white focus:border-blue-300 outline-none transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+            
+            <!-- FILTROS Y HERRAMIENTAS -->
+            <div class="flex justify-between items-center">
+                <!-- Filtros Principales (Nivel 1) -->
+                <div id="filter-level-1" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar hidden"></div>
+                
+                <!-- Orden y Presupuesto -->
+                <div class="flex gap-2 items-center pl-4 ml-auto border-l border-slate-100">
+                    <button onclick="window.toggleSort()" id="btn-sort" class="tool-btn tool-btn-inactive" title="Ordenar por Precio">
+                        <i class="fa-solid fa-arrow-up-wide-short"></i> <span id="sort-label">Precio</span>
+                    </button>
+                    <div class="relative">
+                        <i class="fa-solid fa-dollar-sign absolute left-2 top-1.5 text-slate-400 text-[10px]"></i>
+                        <input type="number" id="budget-input" oninput="window.renderGrid()" placeholder="Max" class="w-16 pl-5 pr-1 py-1 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-400" title="Tope">
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTROS SECUNDARIOS (Nivel 2 dinámico) -->
+            <div id="filter-level-2" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden mt-1 border-t border-dashed border-slate-100 pt-2"></div>
+            
+        </header>
+        
+        <div class="flex-1 overflow-y-auto p-8">
+            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-10"></div>
+        </div>
+    </main>
+
+    <!-- MODAL CONFIG -->
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-2xl w-[500px] p-6 animate-[fadeIn_0.2s_ease-out]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-database text-blue-600"></i> Gestión de Inventario</h2>
+                <button onclick="window.toggleModal(false)" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-6">
+                <div class="bg-blue-50 p-4 rounded border border-blue-100">
+                    <h3 class="font-bold text-sm text-blue-900 mb-2">Estado de Conexión</h3>
+                    <p class="text-xs text-blue-700">Conectado a Google Sheets: <strong>SÍ</strong></p>
+                    <p class="text-xs text-slate-500 mt-2">Los productos se descargan automáticamente al abrir la página. Si haces cambios en el Excel, simplemente recarga esta web.</p>
+                </div>
+                <div class="border-t pt-4">
+                    <button onclick="window.resetDB()" class="text-slate-500 hover:text-red-600 text-xs font-bold underline w-full text-center">Forzar Recarga de Datos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURACIONES PRINCIPALES
+        // ============================================================
+        const LOGO_URL = "https://cdn-icons-png.flaticon.com/512/3204/3204008.png"; 
+        const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuZ4_YpXxbqtxBaLaFr7zAE3cTZQAXDG74riH7q7tLd5bxfFitT2jYSez25563KoeBGYOeMnGTuGP1/pub?output=csv";
+        const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz8kM-HdyiJh8TU8ynHNG4pvNm3UqWahKcTu30bwKVWuch39P9MShV8fIssIedQM6APXg/exec"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoImg = document.getElementById('main-logo');
+            if(LOGO_URL && LOGO_URL.length > 5) logoImg.src = LOGO_URL;
+        });
+
+        window.cart =[];
+        window.currentCategory = 'services';
+        window.activeL1 = 'all'; 
+        window.activeL2 = 'all'; 
+        window.sortOrder = 'default'; 
+
+        let db = { services: [], frames: [], lenses: [], contacts:[] };
+
+        // --- SISTEMA DE DOBLE FILTRO (DATOS) ---
+        const configL1 = {
+            frames:[
+                {id: 'oftalmica', label: 'Oftálmicas'}, {id: 'sol', label: 'De Sol'}, {id: 'nuevas', label: '🔥 Nuevas'}
+            ],
+            contacts:[
+                {id: 'sph', label: 'Esférico'}, {id: 'toric', label: 'Tórico'}, {id: 'multi', label: 'Multifocal'}
+            ],
+            lenses:[
+                {id: 'monofocal', label: 'Monofocales'}, {id: 'bifocal', label: 'Bifocales'}, {id: 'progressive', label: 'Multifocales'}
+            ] 
+        };
+
+        const configL2_Frames =[
+            {id: 'dama', label: 'Dama'}, {id: 'caballero', label: 'Caballero'}, {id: 'nino', label: 'Niños'}
+        ];
+
+        const configL2_Lenses = {
+            'all':[
+                {id:'blanco', label:'Blanco/CR39'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}, {id:'alto', label:'Alto Índice'}, {id:'invisible', label:'Invisible'}, {id:'prefab', label:'Pre-Fabricado'}, {id:'tallado', label:'Tallado'}, {id:'plus', label:'Gama Plus'}
+            ],
+            'monofocal':[
+                {id:'blanco', label:'Blanco/CR39'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}, {id:'alto', label:'Alto Índice'}
+            ],
+            'bifocal':[
+                {id:'blanco', label:'Blanco (KTO)'}, {id:'invisible', label:'Invisible'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}
+            ],
+            'progressive':[
+                {id:'prefab', label:'Pre-Fabricados'}, {id:'tallado', label:'Tallados'}, {id:'plus', label:'Plus / Alta Gama'}, {id:'foto', label:'Fotocromáticos'}
+            ]
+        };
+
+        // --- CARGA DESDE LA NUBE ---
+        async function loadInventoryFromCloud() {
+            if(!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.length < 10) { loadLocalOrDefaults(); return; }
+            const antiCacheURL = GOOGLE_SHEET_URL + "&t=" + new Date().getTime();
+            try {
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(antiCacheURL);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Error HTTP");
+                const data = await response.text();
+                if(!data || data.includes("<!DOCTYPE html>")) throw new Error("Inválido");
+                parseCSV(data);
+                window.renderGrid(); 
+            } catch (error) {
+                try {
+                    const fallbackUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(antiCacheURL);
+                    const res2 = await fetch(fallbackUrl);
+                    if(!res2.ok) throw new Error("Fallo");
+                    const data2 = await res2.text();
+                    parseCSV(data2);
+                    window.renderGrid();
+                } catch (err2) {
+                    loadLocalOrDefaults();
+                }
+            }
+        }
+
+        function loadLocalOrDefaults() {
+            const local = localStorage.getItem('optiSuiteDB');
+            if(local) { db = JSON.parse(local); window.renderGrid(); }
+        }
+
+        function parseCSV(csvText) {
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+            db = { services: [], frames: [], lenses: [], contacts:[] };
+
+            for (let i = 1; i < rows.length; i++) {
+                const values = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const clean = values.map(val => val.replace(/^"|"$/g, '').trim());
+                if(clean.length < 3) continue;
+
+                let catRaw = clean[1] ? clean[1].toLowerCase() : '';
+                let category = catRaw;
+                if(catRaw.includes('montura') || catRaw.includes('frame')) category = 'frames';
+                else if(catRaw.includes('cristal') || catRaw.includes('lente') || catRaw.includes('lenses')) category = 'lenses';
+                else if(catRaw.includes('contact')) category = 'contacts';
+                else if(catRaw.includes('serv')) category = 'services';
+
+                if (!db[category]) continue;
+
+                let rawImage = clean[8] || '';
+                if(rawImage.includes('drive.google.com') && rawImage.includes('/view')) {
+                    try {
+                        const fileId = rawImage.match(/\/d\/(.+?)\//)[1];
+                        rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId;
+                    } catch(e){}
+                }
+
+                // SISTEMA DE FECHAS (NUEVAS)
+                let isNew = false;
+                let dateStr = clean[9] || ''; 
+                if(dateStr.length >= 8) {
+                    let parts = dateStr.includes('/') ? dateStr.split('/') : dateStr.split('-');
+                    if(parts.length === 3) {
+                        let y = parts[0].length === 4 ? parts[0] : parts[2];
+                        let m = parts[1];
+                        let d = parts[0].length === 4 ? parts[2] : parts[0];
+                        let itemDate = new Date(y, m - 1, d);
+                        let diffDays = (new Date() - itemDate) / (1000 * 60 * 60 * 24);
+                        if(diffDays >= 0 && diffDays <= 15) isNew = true; 
+                    }
+                }
+
+                const item = {
+                    id: clean[0],
+                    category: category,
+                    name: clean[2],
+                    price: parseFloat(clean[3]) || 0,
+                    brand: clean[4] || '',
+                    type: (clean[5] || '').toLowerCase(), // Usado para Nivel 1 (monofocal, etc)
+                    desc: clean[6] || '',
+                    gender: (clean[7] || '').toLowerCase(), // Usado para Género (Monturas) o Tratamiento (Cristales)
+                    image: rawImage,
+                    isNew: isNew
+                };
+
+                if(!item.image) {
+                    if(category === 'frames') item.icon = 'fa-glasses';
+                    else if(category === 'lenses') item.icon = 'fa-layer-group';
+                    else if(category === 'contacts') item.icon = 'fa-droplet';
+                    else item.icon = 'fa-user-doctor';
+                }
+
+                db[category].push(item);
+            }
+            localStorage.setItem('optiSuiteDB', JSON.stringify(db));
+        }
+
+        loadInventoryFromCloud();
+
+        // --- SISTEMA DE UI DE PESTAÑAS ---
+        window.setCategory = function(cat) {
+            window.currentCategory = cat;
+            window.activeL1 = 'all';
+            window.activeL2 = 'all';
+            window.sortOrder = 'default';
+            document.getElementById('budget-input').value = '';
+            updateSortBtnUI();
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('btn-' + cat).classList.add('active');
+            
+            const titles = { services:['Servicios Clínicos','Honorarios'], frames: ['Monturas','Catálogo'], lenses:['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
+            document.getElementById('page-title').innerText = titles[cat][0];
+            document.getElementById('page-subtitle').innerText = titles[cat][1];
+            
+            renderFiltersUI();
+            window.renderGrid();
+        };
+
+        // --- RENDERIZADO DE LOS BOTONES DE FILTRO ---
+        function renderFiltersUI() {
+            const bar1 = document.getElementById('filter-level-1');
+            const bar2 = document.getElementById('filter-level-2');
+            const cat = window.currentCategory;
+
+            // Limpiar
+            bar1.innerHTML = ''; bar2.innerHTML = '';
+            bar1.classList.add('hidden'); bar2.classList.add('hidden');
+
+            if(configL1[cat]) {
+                bar1.classList.remove('hidden');
+                let html = `<div onclick="window.applyL1('all')" class="filter-chip ${window.activeL1==='all'?'active':'inactive'} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">Todos</div>`;
+                configL1[cat].forEach(f => { 
+                    // Color especial si es el botón de Nuevas
+                    let specialClass = f.id === 'nuevas' && window.activeL1 === 'nuevas' ? 'new-active' : (window.activeL1===f.id?'active':'inactive');
+                    html += `<div onclick="window.applyL1('${f.id}')" class="filter-chip ${specialClass} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">${f.label}</div>`; 
+                });
+                bar1.innerHTML = html;
+            }
+
+            // Sub-filtros Nivel 2
+            if(cat === 'lenses') {
+                bar2.classList.remove('hidden');
+                const options = configL2_Lenses[window.activeL1] || configL2_Lenses['all'];
+                let html2 = `<div onclick="window.applyL2('all')" class="sub-chip ${window.activeL2==='all'?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">Cualquier Tratam.</div>`;
+                options.forEach(f => { 
+                    html2 += `<div onclick="window.applyL2('${f.id}')" class="sub-chip ${window.activeL2===f.id?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">${f.label}</div>`; 
+                });
+                bar2.innerHTML = html2;
+            } else if(cat === 'frames') {
+                bar2.classList.remove('hidden');
+                let html2 = `<div onclick="window.applyL2('all')" class="sub-chip ${window.activeL2==='all'?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">Cualquier Género</div>`;
+                configL2_Frames.forEach(f => { 
+                    html2 += `<div onclick="window.applyL2('${f.id}')" class="sub-chip ${window.activeL2===f.id?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">${f.label}</div>`; 
+                });
+                bar2.innerHTML = html2;
+            }
+        }
+
+        window.applyL1 = function(id) {
+            window.activeL1 = id;
+            window.activeL2 = 'all'; 
+            renderFiltersUI();
+            window.renderGrid();
+        };
+
+        window.applyL2 = function(id) {
+            window.activeL2 = id;
+            renderFiltersUI(); 
+            window.renderGrid();
+        };
+
+        window.toggleSort = function() {
+            if(window.sortOrder === 'default') window.sortOrder = 'asc';
+            else if(window.sortOrder === 'asc') window.sortOrder = 'desc';
+            else window.sortOrder = 'default';
+            updateSortBtnUI();
+            window.renderGrid();
+        };
+
+        function updateSortBtnUI() {
+            const btn = document.getElementById('btn-sort');
+            const icon = btn.querySelector('i');
+            const label = document.getElementById('sort-label');
+            btn.className = "tool-btn " + (window.sortOrder === 'default' ? 'tool-btn-inactive' : 'tool-btn-active');
+            if(window.sortOrder === 'asc') { icon.className = "fa-solid fa-arrow-up-1-9"; label.innerText = "Menor $"; } 
+            else if (window.sortOrder === 'desc') { icon.className = "fa-solid fa-arrow-down-9-1"; label.innerText = "Mayor $"; } 
+            else { icon.className = "fa-solid fa-arrow-up-wide-short"; label.innerText = "Precio"; }
+        }
+
+        // --- GRID RENDER MEJORADO (EL CEREBRO DE LOS FILTROS) ---
+        window.renderGrid = function() {
+            const grid = document.getElementById('catalog-grid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            
+            const rawTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const searchTerms = rawTerm.split(/\s+/).filter(w => w.length > 0);
+            const budgetMax = parseFloat(document.getElementById('budget-input').value) || Infinity;
+
+            const items = db[window.currentCategory] ||[];
+            const rx = window.getRxData();
+
+            // DICCIONARIO DE SINÓNIMOS ÓPTICOS
+            const aliases = {
+                'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic'],
+                'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic'],
+                'azul':['azul', 'blue', 'bluecut', 'blueguard'],
+                'blue':['azul', 'blue', 'bluecut', 'blueguard'],
+                'ar':[' ar', 'ar ', 'antirreflejo', 'hmc', 'duravision', 'quarzo'],
+                'antirreflejo':[' ar', 'ar ', 'antirreflejo', 'hmc', 'duravision', 'quarzo'],
+                'poly':['poly', 'poli', 'policarbonato', ' pc '],
+                'poli':['poly', 'poli', 'policarbonato', ' pc '],
+                'policarbonato':['poly', 'poli', 'policarbonato', ' pc '],
+                'progresivo':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
+                'prog':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
+                'multifocal':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
+                'monofocal':['mono', 'monofocal', 'vision sencilla', 'vs', 'single vision'],
+                'vs':['mono', 'monofocal', 'vision sencilla', 'vs'],
+                'bifocal':['bifocal', 'kto', 'flat-top', 'flat top', 'invisible'],
+                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index', 'hi index'],
+                'indice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
+                'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index']
+            };
+
+            let filtered = items.filter(item => {
+                if(item.price > budgetMax) return false;
+                
+                // 1. Filtros por Categoría (Monturas)
+                if (window.currentCategory === 'frames') {
+                    let isSun = (item.type || '').toLowerCase().includes('sol') || (item.desc || '').toLowerCase().includes('sol');
+                    if (window.activeL1 === 'sol' && !isSun) return false;
+                    if (window.activeL1 === 'oftalmica' && isSun) return false;
+                    if (window.activeL1 === 'nuevas' && !item.isNew) return false;
+
+                    if (window.activeL2 !== 'all') {
+                        let itemGen = item.gender || '';
+                        let searchGen = window.activeL2;
+                        if(searchGen === 'nino') searchGen = 'niñ';
+                        if(!itemGen.includes(searchGen) && !itemGen.includes('unisex')) return false;
+                    }
+                }
+                // 2. Filtros por Categoría (Cristales)
+                else if (window.currentCategory === 'lenses') {
+                    if (window.activeL1 !== 'all' && !(item.type||'').toLowerCase().includes(window.activeL1)) return false;
+                    
+                    if (window.activeL2 !== 'all') {
+                        let itemTreat = ((item.gender||'') + " " + (item.desc||'') + " " + (item.name||'')).toLowerCase();
+                        let aliasForL2 = aliases[window.activeL2] ||[window.activeL2];
+                        let matchL2 = aliasForL2.some(alias => itemTreat.includes(alias.trim()));
+                        if (!matchL2) return false;
+                    }
+                }
+                else if (window.currentCategory === 'contacts') {
+                    if (window.activeL1 !== 'all' && !(item.type||'').toLowerCase().includes(window.activeL1)) return false;
+                }
+
+                // 3. SÚPER BUSCADOR CON SINÓNIMOS
+                if (searchTerms.length === 0) return true;
+                const itemData =[item.name||'', item.brand||'', item.desc||'', item.type||'', item.gender||'', item.id||''].join(' ').toLowerCase();
+                
+                return searchTerms.every(word => {
+                    if (aliases[word]) {
+                        return aliases[word].some(alias => itemData.includes(alias));
+                    } else {
+                        return itemData.includes(word);
+                    }
+                });
+            });
+
+            if(window.sortOrder === 'asc') { filtered.sort((a, b) => a.price - b.price); } 
+            else if (window.sortOrder === 'desc') { filtered.sort((a, b) => b.price - a.price); }
+
+            if(filtered.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">No hay resultados.</div>'; return; }
+
+            filtered.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "product-card rounded-xl border border-slate-200 overflow-hidden relative fade-in group";
+                card.style.animationDelay = (index > 20 ? 0 : index * 20) + 'ms'; 
+
+                let isRec = false, recReason = "";
+                if(window.currentCategory === 'lenses') {
+                    let textCheck = (item.name + " " + item.desc + " " + item.gender).toLowerCase();
+                    let isHighIndex = textCheck.includes('alto') || textCheck.includes('1.60') || textCheck.includes('1.61') || textCheck.includes('1.67') || textCheck.includes('1.74');
+                    
+                    if(isHighIndex && (Math.abs(rx.od.sph)>=4||Math.abs(rx.oi.sph)>=4)) { isRec=true; recReason="Espesor"; }
+                    else if(item.type && item.type.includes('progressive') && (rx.od.add>0||rx.oi.add>0)) { isRec=true; recReason="Presbicia"; }
+                }
+                if(isRec) card.classList.add('recommended');
+
+                let visual = '';
+                let imgUrl = item.image;
+                if(imgUrl && !imgUrl.startsWith('http')) imgUrl = ''; 
+                
+                let newBadge = item.isNew ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow z-20 uppercase animate-pulse">🔥 Nueva</div>` : '';
+
+                if(imgUrl) {
+                    visual = `<div class="relative w-full h-full">${newBadge}<div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-300 text-4xl"><i class="fa-solid fa-image"></i></div><img src="${imgUrl}" class="relative w-full h-full object-contain bg-white transition-transform duration-300 group-hover:scale-105" onerror="this.style.display='none'" alt="${item.name}"></div>`;
+                } else {
+                    visual = `<div class="relative w-full h-full bg-slate-100 text-slate-500 flex items-center justify-center text-5xl transition-transform duration-300 group-hover:scale-110">${newBadge}<i class="fa-solid ${item.icon || 'fa-box'}"></i></div>`;
+                }
+
+                let brandHtml = '';
+                if(item.brand && item.brand.length > 0) {
+                    brandHtml = '<div class="text-[11px] font-bold text-blue-700 uppercase tracking-wide mb-0.5 leading-snug">' + item.brand + '</div>';
+                }
+
+                card.innerHTML = 
+                    '<div class="rec-badge absolute top-3 right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow z-10 uppercase"><i class="fa-solid fa-star"></i> ' + recReason + '</div>' +
+                    '<div class="h-48 overflow-hidden flex items-center justify-center bg-white p-2">' + visual + '</div>' +
+                    '<div class="p-4 border-t border-slate-100">' +
+                        brandHtml + 
+                        '<h4 class="font-bold text-slate-800 text-sm leading-tight">' + item.name + '</h4>' +
+                        '<p class="text-xs text-slate-500 mt-1">' + (item.desc || '') + '</p>' +
+                        '<div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100"><span class="font-bold text-lg text-slate-900">$' + item.price + '</span><button onclick="window.addToCart(\'' + item.id + '\', \'' + window.currentCategory + '\')" class="bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button></div></div>';
+                grid.appendChild(card);
+            });
+        };
+
+        // --- SISTEMA DE RX Y WHATSAPP ---
+        window.getRxData = function() {
+            return { od: { sph: parseFloat(document.getElementById('odSphere').value)||0, cyl: parseFloat(document.getElementById('odCyl').value)||0, axis: parseFloat(document.getElementById('odAxis').value)||0, add: parseFloat(document.getElementById('odAdd').value)||0 }, oi: { sph: parseFloat(document.getElementById('oiSphere').value)||0, cyl: parseFloat(document.getElementById('oiCyl').value)||0, axis: parseFloat(document.getElementById('oiAxis').value)||0, add: parseFloat(document.getElementById('oiAdd').value)||0 } };
+        };
+        
+        window.updateRecommendations = function() {
+            const rx = window.getRxData();
+            const diagBox = document.getElementById('rx-diagnosis');
+            const diagText = document.getElementById('diagnosis-text');
+            let text =[];
+            if(Math.abs(rx.od.sph)>=4 || Math.abs(rx.oi.sph)>=4) text.push("Alto Índice");
+            if(Math.abs(rx.od.cyl)>=0.75 || Math.abs(rx.oi.cyl)>=0.75) text.push("Astigmatismo");
+            if(rx.od.add>0 || rx.oi.add>0) text.push("Presbicia");
+            if(text.length===0) { if(diagBox) diagBox.classList.add('hidden'); } 
+            else { if(diagBox) diagBox.classList.remove('hidden'); if(diagText) diagText.innerText = text.join(" + "); }
+            window.renderGrid();
+        };
+
+        window.calcTotalDP = function() {
+            const od = parseFloat(document.getElementById('odDnp').value)||0; const oi = parseFloat(document.getElementById('oiDnp').value)||0;
+            const disp = document.getElementById('total-dp-display'); if(disp) disp.innerText = (od>0&&oi>0) ? 'DP Total: ' + (od+oi).toFixed(1) + ' mm' : 'DP Total: --';
+        };
+
+        window.updateBalance = function() {
+            let total = window.cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+            let abono = parseFloat(document.getElementById('abono-input').value) || 0;
+            let saldo = total - abono;
+            if(saldo < 0) saldo = 0; 
+            document.getElementById('cart-saldo').innerText = '$' + saldo.toFixed(2);
+        };
+
+        window.addToCart = function(id, cat) { 
+            const i = db[cat].find(x => x.id === id); 
+            if(i) { window.cart.push(i); window.renderCart(); } 
+        };
+        window.removeFromCart = function(index) { 
+            window.cart.splice(index, 1); window.renderCart(); 
+        };
+        
+        window.renderCart = function() {
+            const c = document.getElementById('cart-container'); const t = document.getElementById('cart-total'); const count = document.getElementById('cart-count');
+            if(!c) return; c.innerHTML = ''; if(count) count.innerText = window.cart.length;
+            if(window.cart.length===0) { 
+                c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-300 py-4"><i class="fa-solid fa-cart-shopping text-2xl mb-2"></i><p class="text-xs">Vacío</p></div>'; 
+                if(t) t.innerText = "$0.00"; 
+                window.updateBalance(); return; 
+            }
+            let tot = 0; 
+            window.cart.forEach((x,i)=>{ 
+                tot+=parseFloat(x.price); 
+                c.innerHTML+=`<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid ${x.icon||'fa-box'} text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">${x.name}</div><div class="text-[10px] text-slate-400">$${x.price}</div></div></div><button onclick="window.removeFromCart(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>`; 
+            });
+            if(t) t.innerText = '$' + tot.toFixed(2);
+            window.updateBalance();
+        };
+
+        window.fmtRx = function(value) {
+            let num = parseFloat(value);
+            if (isNaN(num) || num === 0) return 0; 
+            let formatted = Math.abs(num).toFixed(2);
+            return (num > 0 ? "+" : "-") + formatted;
+        };
+
+        window.sendWhatsApp = function() {
+            let name = document.getElementById('patient-name').value || "Paciente";
+            let phone = document.getElementById('patient-phone').value || "";
+            let idCard = document.getElementById('patient-id').value || "";
+            let orderNum = document.getElementById('patient-ot').value || ""; 
+            let rx = window.getRxData();
+            let odDnp = document.getElementById('odDnp').value || "";
+            let odAlt = document.getElementById('odAlt').value || "";
+            let oiDnp = document.getElementById('oiDnp').value || "";
+            let oiAlt = document.getElementById('oiAlt').value || "";
+
+            if(window.cart.length === 0) { alert("Agrega productos al carrito."); return; }
+            
+            let total = 0;
+            let message = orderNum ? `Hola *${name}*, resumen de Orden *#${orderNum}*:\n\n` : `Hola *${name}*, resumen de consulta:\n\n`;
+            
+            if(phone || idCard) {
+                if(phone) message += `Tel: ${phone} `;
+                if(idCard) message += `| ID: ${idCard}`;
+                message += `\n\n`;
+            }
+
+            let rxOD =[];
+            let sphOD = window.fmtRx(rx.od.sph);
+            let cylOD = window.fmtRx(rx.od.cyl);
+            if(sphOD !== 0) rxOD.push(`${sphOD} esf`);
+            if(cylOD !== 0) rxOD.push(`${cylOD} cil x ${rx.od.axis}°`);
+            let odStr = rxOD.length > 0 ? `OD: ${rxOD.join(' ')}` : '';
+            let addOD = window.fmtRx(rx.od.add);
+            if(addOD !== 0) odStr = odStr !== '' ? `${odStr} ADD: ${addOD}` : `OD: ADD: ${addOD}`;
+
+            let rxOI =[];
+            let sphOI = window.fmtRx(rx.oi.sph);
+            let cylOI = window.fmtRx(rx.oi.cyl);
+            if(sphOI !== 0) rxOI.push(`${sphOI} esf`);
+            if(cylOI !== 0) rxOI.push(`${cylOI} cil x ${rx.oi.axis}°`);
+            let oiStr = rxOI.length > 0 ? `OI : ${rxOI.join(' ')}` : '';
+            let addOI = window.fmtRx(rx.oi.add);
+            if(addOI !== 0) oiStr = oiStr !== '' ? `${oiStr} ADD: ${addOI}` : `OI : ADD: ${addOI}`;
+
+            let rxOD_db = odStr.replace("OD: ", "") || "Sin Rx";
+            let rxOI_db = oiStr.replace("OI : ", "") || "Sin Rx";
+
+            if(odStr !== '' || oiStr !== '') {
+                message += `*RECETA FINAL:*\n`;
+                if(odStr) message += `${odStr}\n`;
+                if(oiStr) message += `${oiStr}\n`;
+                message += `\n`;
+            }
+
+            let medidasTxt = "";
+            if(odDnp || odAlt || oiDnp || oiAlt) {
+                message += `*MEDIDAS (mm):*\n`;
+                if(odDnp || odAlt) message += `OD: DNP ${odDnp || '-'} / Alt ${odAlt || '-'}\n`;
+                if(oiDnp || oiAlt) message += `OI : DNP ${oiDnp || '-'} / Alt ${oiAlt || '-'}\n`;
+                message += `\n`;
+                medidasTxt = `OD: ${odDnp||'-'}/${odAlt||'-'} | OI: ${oiDnp||'-'}/${oiAlt||'-'}`;
+            } else {
+                medidasTxt = "N/A";
+            }
+            
+            message += `*PRODUCTOS:*\n`;
+            let productosArray =[];
+            window.cart.forEach(item => { 
+                let p = parseFloat(item.price);
+                if(isNaN(p)) p = 0;
+                total += p;
+                message += `• *${item.name}* ($${p.toFixed(2)})\n`; 
+                if(item.desc && item.desc.trim() !== "") {
+                    message += `  ↳ _${item.desc}_\n`;
+                    productosArray.push(`${item.name} (${item.desc})`);
+                } else {
+                    productosArray.push(item.name);
+                }
+            });
+            let productosTxt = productosArray.join(" | ");
+            
+            let abono = parseFloat(document.getElementById('abono-input').value) || 0;
+            let saldo = total - abono;
+
+            if (abono > 0) {
+                message += `\n*RESUMEN DE PAGO:*\n`;
+                message += `- Total Estimado: $${total.toFixed(2)}\n`;
+                message += `- Abono Inicial: $${abono.toFixed(2)}\n`;
+                message += `- *SALDO PENDIENTE: $${saldo.toFixed(2)}*\n`;
+            } else {
+                message += `\n*TOTAL A PAGAR: $${total.toFixed(2)}*\n`;
+            }
+
+            if(URL_APPS_SCRIPT && URL_APPS_SCRIPT.includes("script.google.com")) {
+                let dbData = {
+                    orden: orderNum ? "'" + orderNum : "", 
+                    nombre: name,
+                    telefono: phone,
+                    id_card: idCard,
+                    rx_od: rxOD_db,
+                    rx_oi: rxOI_db,
+                    medidas: medidasTxt,
+                    productos: productosTxt,
+                    total: total,
+                    abono: abono,
+                    saldo: saldo
+                };
+                fetch(URL_APPS_SCRIPT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dbData)
+                }).catch(err => console.log("Error:", err));
+            }
+            
+            let finalUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+            window.open(finalUrl, '_blank');
+        };
+
+        window.toggleModal = function(s) { const m=document.getElementById('admin-modal'); if(m) m.classList[s?'remove':'add']('hidden'); };
+        window.resetDB = function() { if(confirm("¿Recargar datos?")) { localStorage.removeItem('optiSuiteDB'); location.reload(); } };
+        window.setCategory('services');
+    </script>
+</body>
+</html>
