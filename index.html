@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OptiSuite Pro - Clínica (Actualizado)</title>
+    <title>OptiSuite Pro - Buscador Inteligente V2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,7 +11,7 @@
         .nav-item { transition: all 0.2s; border-left: 4px solid transparent; }
         .nav-item:hover { background-color: #f1f5f9; color: #2563eb; }
         .nav-item.active { background-color: #eff6ff; color: #2563eb; border-left-color: #2563eb; }
-        .product-card { transition: all 0.2s ease; background: white; cursor: pointer; }
+        .product-card { transition: all 0.2s ease; background: white; cursor: pointer; border: 1px solid #f1f5f9; }
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); border-color: #93c5fd; }
         .rec-badge { display: none; }
         .recommended .rec-badge { display: inline-flex; }
@@ -25,11 +25,11 @@
         .gen-input { width: 100%; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; transition: border 0.2s; }
         .gen-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
         #admin-modal { background-color: rgba(0,0,0,0.5); }
+        
         .filter-chip { transition: all 0.2s; cursor: pointer; user-select: none; white-space: nowrap; }
         .filter-chip.active { background-color: #2563eb; color: white; border-color: #2563eb; }
         .filter-chip.inactive { background-color: white; color: #64748b; border-color: #e2e8f0; }
-        .filter-chip.new-active { background-color: #fef2f2; color: #ef4444; border-color: #fecaca; font-weight: bold; }
-        
+
         .sub-chip { transition: all 0.2s ease; cursor: pointer; user-select: none; white-space: nowrap; }
         .sub-chip.active { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; font-weight: bold; }
         .sub-chip.inactive { background-color: transparent; color: #94a3b8; border-color: transparent; }
@@ -60,7 +60,7 @@
         </button>
     </nav>
 
-    <!-- PANEL CENTRAL -->
+    <!-- PANEL CENTRAL (DATOS Y CARRITO) -->
     <aside class="w-[440px] bg-white border-r border-slate-200 flex flex-col z-10">
         <div class="flex-1 overflow-y-auto">
             
@@ -186,26 +186,24 @@
                 </div>
             </div>
             
-            <!-- FILTROS Y HERRAMIENTAS -->
-            <div class="flex justify-between items-center">
-                <!-- Filtros Principales (Nivel 1) -->
-                <div id="filter-level-1" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar hidden"></div>
-                
-                <!-- Orden y Presupuesto -->
-                <div class="flex gap-2 items-center pl-4 ml-auto border-l border-slate-100">
-                    <button onclick="window.toggleSort()" id="btn-sort" class="tool-btn tool-btn-inactive" title="Ordenar por Precio">
-                        <i class="fa-solid fa-arrow-up-wide-short"></i> <span id="sort-label">Precio</span>
-                    </button>
-                    <div class="relative">
-                        <i class="fa-solid fa-dollar-sign absolute left-2 top-1.5 text-slate-400 text-[10px]"></i>
-                        <input type="number" id="budget-input" oninput="window.renderGrid()" placeholder="Max" class="w-16 pl-5 pr-1 py-1 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-400" title="Tope">
+            <!-- BARRA DE FILTROS Y HERRAMIENTAS -->
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <div id="filter-level-1" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden"></div>
+
+                    <div class="flex gap-2 items-center pl-4 ml-auto border-l border-slate-100">
+                        <button onclick="window.toggleSort()" id="btn-sort" class="tool-btn tool-btn-inactive" title="Ordenar por Precio">
+                            <i class="fa-solid fa-arrow-up-wide-short"></i> <span id="sort-label">Precio</span>
+                        </button>
+                        <div class="relative">
+                            <i class="fa-solid fa-dollar-sign absolute left-2 top-1.5 text-slate-400 text-[10px]"></i>
+                            <input type="number" id="budget-input" oninput="window.renderGrid()" placeholder="Max" class="w-16 pl-5 pr-1 py-1 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-400" title="Tope">
+                        </div>
                     </div>
                 </div>
+                <!-- FILTROS SECUNDARIOS (Nivel 2 dinámico) -->
+                <div id="filter-level-2" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden mt-1 border-t border-dashed border-slate-100 pt-2"></div>
             </div>
-
-            <!-- FILTROS SECUNDARIOS (Nivel 2 dinámico) -->
-            <div id="filter-level-2" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden mt-1 border-t border-dashed border-slate-100 pt-2"></div>
-            
         </header>
         
         <div class="flex-1 overflow-y-auto p-8">
@@ -224,7 +222,7 @@
                 <div class="bg-blue-50 p-4 rounded border border-blue-100">
                     <h3 class="font-bold text-sm text-blue-900 mb-2">Estado de Conexión</h3>
                     <p class="text-xs text-blue-700">Conectado a Google Sheets: <strong>SÍ</strong></p>
-                    <p class="text-xs text-slate-500 mt-2">Los productos se descargan automáticamente al abrir la página. Si haces cambios en el Excel, simplemente recarga esta web.</p>
+                    <p class="text-xs text-slate-500 mt-2">Los productos se descargan automáticamente al abrir la página.</p>
                 </div>
                 <div class="border-t pt-4">
                     <button onclick="window.resetDB()" class="text-slate-500 hover:text-red-600 text-xs font-bold underline w-full text-center">Forzar Recarga de Datos</button>
@@ -249,42 +247,32 @@
         window.cart =[];
         window.currentCategory = 'services';
         window.activeL1 = 'all'; 
-        window.activeL2 = 'all'; 
+        window.activeL2 = 'all';
         window.sortOrder = 'default'; 
 
         let db = { services: [], frames: [], lenses: [], contacts:[] };
 
-        // --- SISTEMA DE DOBLE FILTRO (DATOS) ---
+        // --- SISTEMA DE FILTROS ACTUALIZADO ---
         const configL1 = {
-            frames:[
-                {id: 'oftalmica', label: 'Oftálmicas'}, {id: 'sol', label: 'De Sol'}, {id: 'nuevas', label: '🔥 Nuevas'}
+            frames:[ {id: 'oftalmica', label: 'Oftálmicas'}, {id: 'sol', label: 'De Sol'}, {id: 'nuevas', label: '🔥 Nuevas'} ],
+            contacts:[ 
+                {id: 'sph', label: 'Esférico'}, 
+                {id: 'toric', label: 'Tórico'}, 
+                {id: 'multi', label: 'Multifocal'},
+                {id: 'cosmeticos', label: 'Cosméticos'}
             ],
-            contacts:[
-                {id: 'sph', label: 'Esférico'}, {id: 'toric', label: 'Tórico'}, {id: 'multi', label: 'Multifocal'}
-            ],
-            lenses:[
-                {id: 'monofocal', label: 'Monofocales'}, {id: 'bifocal', label: 'Bifocales'}, {id: 'progressive', label: 'Multifocales'}
+            // AQUI AGREGAMOS OCUPACIONAL y estandarizamos los nombres
+            lenses:[ 
+                {id: 'monofocal', label: 'Monofocal'}, 
+                {id: 'bifocal', label: 'Bifocal'}, 
+                {id: 'progresivo', label: 'Multifocal / Prog.'},
+                {id: 'ocupacional', label: 'Ocupacional'}
             ] 
         };
 
         const configL2_Frames =[
             {id: 'dama', label: 'Dama'}, {id: 'caballero', label: 'Caballero'}, {id: 'nino', label: 'Niños'}
         ];
-
-        const configL2_Lenses = {
-            'all':[
-                {id:'blanco', label:'Blanco/CR39'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}, {id:'alto', label:'Alto Índice'}, {id:'invisible', label:'Invisible'}, {id:'prefab', label:'Pre-Fabricado'}, {id:'tallado', label:'Tallado'}, {id:'plus', label:'Gama Plus'}
-            ],
-            'monofocal':[
-                {id:'blanco', label:'Blanco/CR39'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}, {id:'alto', label:'Alto Índice'}
-            ],
-            'bifocal':[
-                {id:'blanco', label:'Blanco (KTO)'}, {id:'invisible', label:'Invisible'}, {id:'ar', label:'Antirreflejo'}, {id:'blue', label:'Filtro Azul'}, {id:'foto', label:'Fotocromático'}
-            ],
-            'progressive':[
-                {id:'prefab', label:'Pre-Fabricados'}, {id:'tallado', label:'Tallados'}, {id:'plus', label:'Plus / Alta Gama'}, {id:'foto', label:'Fotocromáticos'}
-            ]
-        };
 
         // --- CARGA DESDE LA NUBE ---
         async function loadInventoryFromCloud() {
@@ -319,7 +307,7 @@
 
         function parseCSV(csvText) {
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
-            db = { services: [], frames: [], lenses: [], contacts:[] };
+            db = { services: [], frames:[], lenses: [], contacts:[] };
 
             for (let i = 1; i < rows.length; i++) {
                 const values = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -335,27 +323,12 @@
 
                 if (!db[category]) continue;
 
-                let rawImage = clean[8] || '';
+                let rawImage = clean[8] || ''; 
                 if(rawImage.includes('drive.google.com') && rawImage.includes('/view')) {
                     try {
                         const fileId = rawImage.match(/\/d\/(.+?)\//)[1];
                         rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId;
                     } catch(e){}
-                }
-
-                // SISTEMA DE FECHAS (NUEVAS)
-                let isNew = false;
-                let dateStr = clean[9] || ''; 
-                if(dateStr.length >= 8) {
-                    let parts = dateStr.includes('/') ? dateStr.split('/') : dateStr.split('-');
-                    if(parts.length === 3) {
-                        let y = parts[0].length === 4 ? parts[0] : parts[2];
-                        let m = parts[1];
-                        let d = parts[0].length === 4 ? parts[2] : parts[0];
-                        let itemDate = new Date(y, m - 1, d);
-                        let diffDays = (new Date() - itemDate) / (1000 * 60 * 60 * 24);
-                        if(diffDays >= 0 && diffDays <= 15) isNew = true; 
-                    }
                 }
 
                 const item = {
@@ -364,11 +337,10 @@
                     name: clean[2],
                     price: parseFloat(clean[3]) || 0,
                     brand: clean[4] || '',
-                    type: (clean[5] || '').toLowerCase(), // Usado para Nivel 1 (monofocal, etc)
+                    type: (clean[5] || '').toLowerCase(), // Usado para filtros
                     desc: clean[6] || '',
-                    gender: (clean[7] || '').toLowerCase(), // Usado para Género (Monturas) o Tratamiento (Cristales)
-                    image: rawImage,
-                    isNew: isNew
+                    gender: (clean[7] || '').toLowerCase(), 
+                    image: rawImage
                 };
 
                 if(!item.image) {
@@ -397,7 +369,7 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
             
-            const titles = { services:['Servicios Clínicos','Honorarios'], frames: ['Monturas','Catálogo'], lenses:['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
+            const titles = { services:['Servicios Clínicos','Honorarios'], frames: ['Monturas','Catálogo'], lenses: ['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
             document.getElementById('page-title').innerText = titles[cat][0];
             document.getElementById('page-subtitle').innerText = titles[cat][1];
             
@@ -405,37 +377,26 @@
             window.renderGrid();
         };
 
-        // --- RENDERIZADO DE LOS BOTONES DE FILTRO ---
         function renderFiltersUI() {
             const bar1 = document.getElementById('filter-level-1');
             const bar2 = document.getElementById('filter-level-2');
             const cat = window.currentCategory;
-
-            // Limpiar
-            bar1.innerHTML = ''; bar2.innerHTML = '';
-            bar1.classList.add('hidden'); bar2.classList.add('hidden');
+            bar1.innerHTML = ''; 
+            if(bar2) { bar2.innerHTML = ''; bar2.classList.add('hidden'); }
+            bar1.classList.add('hidden'); 
 
             if(configL1[cat]) {
                 bar1.classList.remove('hidden');
                 let html = `<div onclick="window.applyL1('all')" class="filter-chip ${window.activeL1==='all'?'active':'inactive'} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">Todos</div>`;
                 configL1[cat].forEach(f => { 
-                    // Color especial si es el botón de Nuevas
-                    let specialClass = f.id === 'nuevas' && window.activeL1 === 'nuevas' ? 'new-active' : (window.activeL1===f.id?'active':'inactive');
+                    let specialClass = window.activeL1===f.id ? 'active' : 'inactive';
                     html += `<div onclick="window.applyL1('${f.id}')" class="filter-chip ${specialClass} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">${f.label}</div>`; 
                 });
                 bar1.innerHTML = html;
             }
 
-            // Sub-filtros Nivel 2
-            if(cat === 'lenses') {
-                bar2.classList.remove('hidden');
-                const options = configL2_Lenses[window.activeL1] || configL2_Lenses['all'];
-                let html2 = `<div onclick="window.applyL2('all')" class="sub-chip ${window.activeL2==='all'?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">Cualquier Tratam.</div>`;
-                options.forEach(f => { 
-                    html2 += `<div onclick="window.applyL2('${f.id}')" class="sub-chip ${window.activeL2===f.id?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">${f.label}</div>`; 
-                });
-                bar2.innerHTML = html2;
-            } else if(cat === 'frames') {
+            // Sub-filtros Nivel 2 para Monturas (género)
+            if(cat === 'frames' && bar2) {
                 bar2.classList.remove('hidden');
                 let html2 = `<div onclick="window.applyL2('all')" class="sub-chip ${window.activeL2==='all'?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">Cualquier Género</div>`;
                 configL2_Frames.forEach(f => { 
@@ -447,14 +408,13 @@
 
         window.applyL1 = function(id) {
             window.activeL1 = id;
-            window.activeL2 = 'all'; 
             renderFiltersUI();
             window.renderGrid();
         };
 
         window.applyL2 = function(id) {
             window.activeL2 = id;
-            renderFiltersUI(); 
+            renderFiltersUI();
             window.renderGrid();
         };
 
@@ -471,12 +431,12 @@
             const icon = btn.querySelector('i');
             const label = document.getElementById('sort-label');
             btn.className = "tool-btn " + (window.sortOrder === 'default' ? 'tool-btn-inactive' : 'tool-btn-active');
-            if(window.sortOrder === 'asc') { icon.className = "fa-solid fa-arrow-up-1-9"; label.innerText = "Menor $"; } 
-            else if (window.sortOrder === 'desc') { icon.className = "fa-solid fa-arrow-down-9-1"; label.innerText = "Mayor $"; } 
-            else { icon.className = "fa-solid fa-arrow-up-wide-short"; label.innerText = "Precio"; }
+            if(window.sortOrder === 'asc') { icon.className = "fa-solid fa-arrow-up-1-9 text-blue-600"; label.innerText = "Menor $"; } 
+            else if (window.sortOrder === 'desc') { icon.className = "fa-solid fa-arrow-down-9-1 text-blue-600"; label.innerText = "Mayor $"; } 
+            else { icon.className = "fa-solid fa-arrow-up-wide-short text-slate-400"; label.innerText = "Precio"; }
         }
 
-        // --- GRID RENDER MEJORADO (EL CEREBRO DE LOS FILTROS) ---
+        // --- GRID RENDER MEJORADO CON DICCIONARIO ---
         window.renderGrid = function() {
             const grid = document.getElementById('catalog-grid');
             if(!grid) return;
@@ -489,64 +449,90 @@
             const items = db[window.currentCategory] ||[];
             const rx = window.getRxData();
 
-            // DICCIONARIO DE SINÓNIMOS ÓPTICOS
+            // DICCIONARIO DE SINÓNIMOS
             const aliases = {
-                'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic'],
-                'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic'],
-                'azul':['azul', 'blue', 'bluecut', 'blueguard'],
-                'blue':['azul', 'blue', 'bluecut', 'blueguard'],
-                'ar':[' ar', 'ar ', 'antirreflejo', 'hmc', 'duravision', 'quarzo'],
-                'antirreflejo':[' ar', 'ar ', 'antirreflejo', 'hmc', 'duravision', 'quarzo'],
-                'poly':['poly', 'poli', 'policarbonato', ' pc '],
-                'poli':['poly', 'poli', 'policarbonato', ' pc '],
-                'policarbonato':['poly', 'poli', 'policarbonato', ' pc '],
+                'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
+                'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
+                'azul':['azul','azúl','blue','bluecut','blue-cut','blue cut','blueguard','blue guard','blueblock','blue-block','blue block','bblock','bb','bluelight','blue light','blue-light','filtro azul','filtro-azul','filtrante azul','filtrante-azul'],
+                'blue':['azul','azúl','blue','bluecut','blue-cut','blue cut','blueguard','blue guard','blueblock','blue-block','blue block','bblock','bb','bluelight','blue light','blue-light','filtro azul','filtro-azul','filtrante azul','filtrante-azul'],
+                'bluelight':['bluelight','blue light','blue-light','filtrante azul','filtro azul','bluelite'],
+                'blueblock':['blueblock','blue-block','blue block','bblock','bb','blueblocker','blue blocker','blueblockers'],
+                'bb':['bb','bblock','b-block'],
+                'ar':['ar ', ' ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal'],
+                'antirreflejo':['ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal'],
+                'poly':['poly', 'poli', 'policarbonato', 'pc'],
+                'policarbonato':['poly', 'poli', 'policarbonato', 'pc'],
                 'progresivo':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
-                'prog':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
                 'multifocal':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
                 'monofocal':['mono', 'monofocal', 'vision sencilla', 'vs', 'single vision'],
-                'vs':['mono', 'monofocal', 'vision sencilla', 'vs'],
                 'bifocal':['bifocal', 'kto', 'flat-top', 'flat top', 'invisible'],
-                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index', 'hi index'],
+                'ocupacional': ['ocupacional', 'office', 'computadora', 'desktop'],
+                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
                 'indice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index']
+                'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
+                // --- synonyms for contact lenses ---
+                'sph': ['sph','esferico','esférico','spherical'],
+                'toric': ['toric','tórico','torico','toric'],
+                'multi': ['multi','multifocal','multí'],
+                // --- prefabricated / terminado ---
+                'terminado': ['terminado','terminados','terminada','terminadas','pre fabricado','prefabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado','ready-made','ready made','readymade','stock','estandar','estándar','standard','semi-terminado','semi terminado'],
+                'prefabricado': ['prefabricado','pre fabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado'],
+                'cosmeticos': ['cosmeticos','cosméticos','cosmetic','makeup','maquillaje'],
             };
 
             let filtered = items.filter(item => {
                 if(item.price > budgetMax) return false;
-                
-                // 1. Filtros por Categoría (Monturas)
+
+                let itemType = (item.type || '').toLowerCase();
+                const itemData =[item.name||'', item.brand||'', item.desc||'', itemType, item.gender||'', item.id||''].join(' ').toLowerCase();
+
+                // Detect if the user explicitly searched for prefabricated/terminado
+                const prefabAliases = (aliases['terminado'] || []).concat(aliases['prefabricado'] || []);
+                const excludeTallado = ['tallado','tallados','tallada','talladas','a medida','hecho a medida','fabricado a medida','made to measure','cut-to-order','cut to order','custom','personalizado','a-medida','a_medida','talla'];
+                const searchTriggeredPrefab = searchTerms.length > 0 && searchTerms.some(word => prefabAliases.includes(word));
+
+                // Filtros de Categoría por Botón
                 if (window.currentCategory === 'frames') {
-                    let isSun = (item.type || '').toLowerCase().includes('sol') || (item.desc || '').toLowerCase().includes('sol');
+                    let isSun = itemType.includes('sol') || (item.desc || '').toLowerCase().includes('sol');
                     if (window.activeL1 === 'sol' && !isSun) return false;
                     if (window.activeL1 === 'oftalmica' && isSun) return false;
-                    if (window.activeL1 === 'nuevas' && !item.isNew) return false;
-
-                    if (window.activeL2 !== 'all') {
-                        let itemGen = item.gender || '';
-                        let searchGen = window.activeL2;
-                        if(searchGen === 'nino') searchGen = 'niñ';
-                        if(!itemGen.includes(searchGen) && !itemGen.includes('unisex')) return false;
+                    if (window.activeL1 === 'nuevas') {
+                        const text = (item.name + ' ' + (item.desc||'')).toLowerCase();
+                        const isNew = text.includes('nuevo') || text.includes('nueva') || text.includes('new') || (item.id && item.id.toLowerCase().includes('new'));
+                        if (!isNew) return false;
+                    }
+                    if (window.activeL2 && window.activeL2 !== 'all') {
+                        const gender = (item.gender || '').toLowerCase();
+                        if (!gender.includes(window.activeL2)) return false;
                     }
                 }
-                // 2. Filtros por Categoría (Cristales)
                 else if (window.currentCategory === 'lenses') {
-                    if (window.activeL1 !== 'all' && !(item.type||'').toLowerCase().includes(window.activeL1)) return false;
-                    
-                    if (window.activeL2 !== 'all') {
-                        let itemTreat = ((item.gender||'') + " " + (item.desc||'') + " " + (item.name||'')).toLowerCase();
-                        let aliasForL2 = aliases[window.activeL2] ||[window.activeL2];
-                        let matchL2 = aliasForL2.some(alias => itemTreat.includes(alias.trim()));
-                        if (!matchL2) return false;
+                    // Si el usuario busca "terminado/prefabricado", incluir solo los que sean prefabricados
+                    if (searchTriggeredPrefab) {
+                        const matchesPrefab = prefabAliases.some(a => itemData.includes(a) || itemType.includes(a));
+                        const isTallado = excludeTallado.some(ex => itemData.includes(ex) || itemType.includes(ex));
+                        if (!matchesPrefab) return false;
+                        if (isTallado) return false;
+                    }
+
+                    // Uso inteligente del diccionario para los botones
+                    if (window.activeL1 !== 'all') {
+                        let aliasL1 = aliases[window.activeL1] || [window.activeL1];
+                        let matchL1 = aliasL1.some(a => itemType.includes(a) || itemData.includes(a));
+                        if (!matchL1) return false;
                     }
                 }
                 else if (window.currentCategory === 'contacts') {
-                    if (window.activeL1 !== 'all' && !(item.type||'').toLowerCase().includes(window.activeL1)) return false;
+                    if (window.activeL1 !== 'all') {
+                        let aliasL1 = aliases[window.activeL1] || [window.activeL1];
+                        let matchL1 = aliasL1.some(a => itemType.includes(a) || itemData.includes(a));
+                        if (!matchL1) return false;
+                    }
                 }
 
-                // 3. SÚPER BUSCADOR CON SINÓNIMOS
+                // Súper Buscador General
                 if (searchTerms.length === 0) return true;
-                const itemData =[item.name||'', item.brand||'', item.desc||'', item.type||'', item.gender||'', item.id||''].join(' ').toLowerCase();
-                
+
                 return searchTerms.every(word => {
                     if (aliases[word]) {
                         return aliases[word].some(alias => itemData.includes(alias));
@@ -556,14 +542,15 @@
                 });
             });
 
+            // Ordenamiento
             if(window.sortOrder === 'asc') { filtered.sort((a, b) => a.price - b.price); } 
             else if (window.sortOrder === 'desc') { filtered.sort((a, b) => b.price - a.price); }
 
-            if(filtered.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">No hay resultados.</div>'; return; }
+            if(filtered.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">No hay productos que coincidan.</div>'; return; }
 
             filtered.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = "product-card rounded-xl border border-slate-200 overflow-hidden relative fade-in group";
+                card.className = "product-card rounded-xl overflow-hidden relative fade-in group bg-white";
                 card.style.animationDelay = (index > 20 ? 0 : index * 20) + 'ms'; 
 
                 let isRec = false, recReason = "";
@@ -572,20 +559,18 @@
                     let isHighIndex = textCheck.includes('alto') || textCheck.includes('1.60') || textCheck.includes('1.61') || textCheck.includes('1.67') || textCheck.includes('1.74');
                     
                     if(isHighIndex && (Math.abs(rx.od.sph)>=4||Math.abs(rx.oi.sph)>=4)) { isRec=true; recReason="Espesor"; }
-                    else if(item.type && item.type.includes('progressive') && (rx.od.add>0||rx.oi.add>0)) { isRec=true; recReason="Presbicia"; }
+                    else if(item.type && item.type.toLowerCase().includes('progressive') && (rx.od.add>0||rx.oi.add>0)) { isRec=true; recReason="Presbicia"; }
                 }
                 if(isRec) card.classList.add('recommended');
 
                 let visual = '';
                 let imgUrl = item.image;
                 if(imgUrl && !imgUrl.startsWith('http')) imgUrl = ''; 
-                
-                let newBadge = item.isNew ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow z-20 uppercase animate-pulse">🔥 Nueva</div>` : '';
 
                 if(imgUrl) {
-                    visual = `<div class="relative w-full h-full">${newBadge}<div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-300 text-4xl"><i class="fa-solid fa-image"></i></div><img src="${imgUrl}" class="relative w-full h-full object-contain bg-white transition-transform duration-300 group-hover:scale-105" onerror="this.style.display='none'" alt="${item.name}"></div>`;
+                    visual = '<div class="relative w-full h-full"><div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-300 text-4xl"><i class="fa-solid fa-image"></i></div><img src="' + imgUrl + '" class="relative w-full h-full object-contain bg-white transition-transform duration-300 group-hover:scale-105" onerror="this.style.display=\'none\'" alt="' + item.name + '"></div>';
                 } else {
-                    visual = `<div class="relative w-full h-full bg-slate-100 text-slate-500 flex items-center justify-center text-5xl transition-transform duration-300 group-hover:scale-110">${newBadge}<i class="fa-solid ${item.icon || 'fa-box'}"></i></div>`;
+                    visual = '<div class="w-full h-full bg-slate-100 text-slate-500 flex items-center justify-center text-5xl transition-transform duration-300 group-hover:scale-110"><i class="fa-solid ' + (item.icon || 'fa-box') + '"></i></div>';
                 }
 
                 let brandHtml = '';
@@ -599,13 +584,13 @@
                     '<div class="p-4 border-t border-slate-100">' +
                         brandHtml + 
                         '<h4 class="font-bold text-slate-800 text-sm leading-tight">' + item.name + '</h4>' +
-                        '<p class="text-xs text-slate-500 mt-1">' + (item.desc || '') + '</p>' +
+                        '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + (item.desc || '') + '</p>' +
                         '<div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100"><span class="font-bold text-lg text-slate-900">$' + item.price + '</span><button onclick="window.addToCart(\'' + item.id + '\', \'' + window.currentCategory + '\')" class="bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button></div></div>';
                 grid.appendChild(card);
             });
         };
 
-        // --- SISTEMA DE RX Y WHATSAPP ---
+        // --- SISTEMA DE RX, CARRITO Y WHATSAPP ---
         window.getRxData = function() {
             return { od: { sph: parseFloat(document.getElementById('odSphere').value)||0, cyl: parseFloat(document.getElementById('odCyl').value)||0, axis: parseFloat(document.getElementById('odAxis').value)||0, add: parseFloat(document.getElementById('odAdd').value)||0 }, oi: { sph: parseFloat(document.getElementById('oiSphere').value)||0, cyl: parseFloat(document.getElementById('oiCyl').value)||0, axis: parseFloat(document.getElementById('oiAxis').value)||0, add: parseFloat(document.getElementById('oiAdd').value)||0 } };
         };
@@ -640,8 +625,10 @@
             const i = db[cat].find(x => x.id === id); 
             if(i) { window.cart.push(i); window.renderCart(); } 
         };
+        
         window.removeFromCart = function(index) { 
-            window.cart.splice(index, 1); window.renderCart(); 
+            window.cart.splice(index, 1); 
+            window.renderCart(); 
         };
         
         window.renderCart = function() {
@@ -650,12 +637,13 @@
             if(window.cart.length===0) { 
                 c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-300 py-4"><i class="fa-solid fa-cart-shopping text-2xl mb-2"></i><p class="text-xs">Vacío</p></div>'; 
                 if(t) t.innerText = "$0.00"; 
-                window.updateBalance(); return; 
+                window.updateBalance();
+                return; 
             }
             let tot = 0; 
             window.cart.forEach((x,i)=>{ 
                 tot+=parseFloat(x.price); 
-                c.innerHTML+=`<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid ${x.icon||'fa-box'} text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">${x.name}</div><div class="text-[10px] text-slate-400">$${x.price}</div></div></div><button onclick="window.removeFromCart(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>`; 
+                c.innerHTML+='<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid '+(x.icon||'fa-box')+' text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">'+x.name+'</div><div class="text-[10px] text-slate-400">$'+x.price+'</div></div></div><button onclick="window.removeFromCart('+i+')" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>'; 
             });
             if(t) t.innerText = '$' + tot.toFixed(2);
             window.updateBalance();
@@ -758,15 +746,17 @@
             }
 
             if(URL_APPS_SCRIPT && URL_APPS_SCRIPT.includes("script.google.com")) {
+                // Force values to be treated as plain text in Google Sheets to avoid formula parse errors
+                const forceText = v => (typeof v === 'string' && v !== '') ? ("'" + v) : v;
                 let dbData = {
                     orden: orderNum ? "'" + orderNum : "", 
-                    nombre: name,
-                    telefono: phone,
-                    id_card: idCard,
-                    rx_od: rxOD_db,
-                    rx_oi: rxOI_db,
-                    medidas: medidasTxt,
-                    productos: productosTxt,
+                    nombre: forceText(name),
+                    telefono: forceText(phone),
+                    id_card: forceText(idCard),
+                    rx_od: (rxOD_db && rxOD_db !== "Sin Rx") ? ("'" + rxOD_db) : rxOD_db,
+                    rx_oi: (rxOI_db && rxOI_db !== "Sin Rx") ? ("'" + rxOI_db) : rxOI_db,
+                    medidas: forceText(medidasTxt),
+                    productos: forceText(productosTxt),
                     total: total,
                     abono: abono,
                     saldo: saldo
@@ -776,7 +766,7 @@
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dbData)
-                }).catch(err => console.log("Error:", err));
+                }).catch(err => console.log("Error webhook:", err));
             }
             
             let finalUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
