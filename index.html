@@ -467,9 +467,16 @@
                 'monofocal':['mono', 'monofocal', 'vision sencilla', 'vs', 'single vision'],
                 'bifocal':['bifocal', 'kto', 'flat-top', 'flat top', 'invisible'],
                 'ocupacional': ['ocupacional', 'office', 'computadora', 'desktop'],
-                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                'indice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
+                'alto':['alto', '1.60', '1.6', '1.61', '1.67', '1.74', 'hi-index', 'hi index', 'high index', 'alto indice', 'alto índice'],
+                'indice':['indice', 'índice', '1.60', '1.6', '1.61', '1.67', '1.74', 'hi-index', 'hi index', 'high index'],
+                'índice':['indice', 'índice', '1.60', '1.6', '1.61', '1.67', '1.74', 'hi-index', 'hi index', 'high index'],
+                // MR8 variants and short numeric variants
+                'mr8': ['mr8','mr-8','mr 8','mr_8','mr8 coating','mr8 index'],
+                '1.6': ['1.6','1.60','1.60 index','index 1.6','índice 1.6'],
+                '1.60': ['1.60','1.6','1.60 index','index 1.60'],
+                '1.61': ['1.61','1.61 index','index 1.61'],
+                '1.67': ['1.67','1.67 index','index 1.67'],
+                '1.74': ['1.74','1.74 index','index 1.74'],
                 // --- synonyms for contact lenses ---
                 'sph': ['sph','esferico','esférico','spherical'],
                 'toric': ['toric','tórico','torico','toric'],
@@ -556,7 +563,7 @@
                 let isRec = false, recReason = "";
                 if(window.currentCategory === 'lenses') {
                     let textCheck = (item.name + " " + item.desc + " " + item.gender).toLowerCase();
-                    let isHighIndex = textCheck.includes('alto') || textCheck.includes('1.60') || textCheck.includes('1.61') || textCheck.includes('1.67') || textCheck.includes('1.74');
+                    let isHighIndex = /(?:alto|1\.6(?:0|1)?|1\.67|1\.74|mr-?8|hi-?index|high index)/.test(textCheck);
                     
                     if(isHighIndex && (Math.abs(rx.od.sph)>=4||Math.abs(rx.oi.sph)>=4)) { isRec=true; recReason="Espesor"; }
                     else if(item.type && item.type.toLowerCase().includes('progressive') && (rx.od.add>0||rx.oi.add>0)) { isRec=true; recReason="Presbicia"; }
