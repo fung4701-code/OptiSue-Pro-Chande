@@ -449,7 +449,7 @@
             const items = db[window.currentCategory] ||[];
             const rx = window.getRxData();
 
-            // DICCIONARIO DE SINÓNIMOS
+            // DICCIONARIO DE SINÓNIMOS (Mejorado con índices de refracción)
             const aliases = {
                 'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
                 'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
@@ -466,38 +466,28 @@
                 'multifocal':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
                 'monofocal':['mono', 'monofocal', 'vision sencilla', 'vs', 'single vision'],
                 'bifocal':['bifocal', 'kto', 'flat-top', 'flat top', 'invisible'],
-                'ocupacional': ['ocupacional', 'office', 'computadora', 'desktop'],
+                'ocupacional':['ocupacional', 'office', 'computadora', 'desktop'],
                 'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
                 'indice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
                 'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
+                // --- SINÓNIMOS DE ÍNDICES DE REFRACCIÓN ---
+                '1.60':['1.60', '1.6', 'mr8', 'mr-8'],
+                '1.6':['1.60', '1.6', 'mr8', 'mr-8'],
+                'mr8':['1.60', '1.6', 'mr8', 'mr-8'],
+                'mr-8': ['1.60', '1.6', 'mr8', 'mr-8'],
+                '1.56':['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
+                'nk55':['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
+                '1.67':['1.67', 'mr10', 'mr-10', 'extra', 'hi-index'],
+                'mr10':['1.67', 'mr10', 'mr-10', 'extra', 'hi-index'],
+                '1.74':['1.74', '1.7', 'ultra'],
                 // --- synonyms for contact lenses ---
-                'sph': ['sph','esferico','esférico','spherical'],
-                'toric': ['toric','tórico','torico','toric'],
+                'sph':['sph','esferico','esférico','spherical'],
+                'toric':['toric','tórico','torico','toric'],
                 'multi': ['multi','multifocal','multí'],
                 // --- prefabricated / terminado ---
-                'terminado': ['terminado','terminados','terminada','terminadas','pre fabricado','prefabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado','ready-made','ready made','readymade','stock','estandar','estándar','standard','semi-terminado','semi terminado'],
-                'prefabricado': ['prefabricado','pre fabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado'],
-                'cosmeticos': ['cosmeticos','cosméticos','cosmetic','makeup','maquillaje'],
-                // --- SINÓNIMOS DE ÍNDICES DE REFRACCIÓN ---
-                '1.60': ['1.60', '1.6', 'mr8', 'mr-8'],
-                '1.6': ['1.60', '1.6', 'mr8', 'mr-8'],
-                'mr8': ['1.60', '1.6', 'mr8', 'mr-8'],
-                'mr-8': ['1.60', '1.6', 'mr8', 'mr-8'],
-
-                // Índice 1.56 (Frecuentemente llamado NK55 o Medio Índice)
-                '1.56': ['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
-                'nk55': ['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
-
-                // Índice 1.67 (Frecuentemente llamado MR10 o Extra Alto)
-                '1.67': ['1.67', 'mr10', 'mr-10', 'mr7', 'mr-7', 'extra', 'hi-index'],
-                'mr10': ['1.67', 'mr10', 'mr-10', 'extra', 'hi-index'],
-                'mr7': ['1.67', 'mr7', 'mr-7', 'extra', 'hi-index'],
-
-                // Índice 1.74 (Ultra Alto)
-                '1.74': ['1.74', '1.7', 'mr174', 'mr-174', 'ultra'],
-                '1.7': ['1.74', '1.7', 'mr174', 'mr-174', 'ultra'],
-                'mr174': ['1.74', '1.7', 'mr174', 'mr-174', 'ultra'],
-                'mr-174': ['1.74', '1.7', 'mr174', 'mr-174', 'ultra'],
+                'terminado':['terminado','terminados','terminada','terminadas','pre fabricado','prefabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado','ready-made','ready made','readymade','stock','estandar','estándar','standard','semi-terminado','semi terminado'],
+                'prefabricado':['prefabricado','pre fabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado'],
+                'cosmeticos':['cosmeticos','cosméticos','cosmetic','makeup','maquillaje'],
             };
 
             let filtered = items.filter(item => {
@@ -508,7 +498,7 @@
 
                 // Detect if the user explicitly searched for prefabricated/terminado
                 const prefabAliases = (aliases['terminado'] || []).concat(aliases['prefabricado'] || []);
-                const excludeTallado = ['tallado','tallados','tallada','talladas','a medida','hecho a medida','fabricado a medida','made to measure','cut-to-order','cut to order','custom','personalizado','a-medida','a_medida','talla'];
+                const excludeTallado =['tallado','tallados','tallada','talladas','a medida','hecho a medida','fabricado a medida','made to measure','cut-to-order','cut to order','custom','personalizado','a-medida','a_medida','talla'];
                 const searchTriggeredPrefab = searchTerms.length > 0 && searchTerms.some(word => prefabAliases.includes(word));
 
                 // Filtros de Categoría por Botón
@@ -598,6 +588,7 @@
                     brandHtml = '<div class="text-[11px] font-bold text-blue-700 uppercase tracking-wide mb-0.5 leading-snug">' + item.brand + '</div>';
                 }
 
+                // CORRECCIÓN: Comillas simples correctamente escapadas en el evento onclick del botón del carrito
                 card.innerHTML = 
                     '<div class="rec-badge absolute top-3 right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow z-10 uppercase"><i class="fa-solid fa-star"></i> ' + recReason + '</div>' +
                     '<div class="h-48 overflow-hidden flex items-center justify-center bg-white p-2">' + visual + '</div>' +
@@ -605,7 +596,7 @@
                         brandHtml + 
                         '<h4 class="font-bold text-slate-800 text-sm leading-tight">' + item.name + '</h4>' +
                         '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + (item.desc || '') + '</p>' +
-                        '<div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100"><span class="font-bold text-lg text-slate-900">$' + item.price + '</span><button onclick="window.addToCart(\'' + item.id + '\', \'" + window.currentCategory + "\')" class="bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button></div></div>';
+                        '<div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100"><span class="font-bold text-lg text-slate-900">$' + item.price + '</span><button onclick="window.addToCart(\'' + item.id + '\', \'' + window.currentCategory + '\')" class="bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button></div></div>';
                 grid.appendChild(card);
             });
         };
