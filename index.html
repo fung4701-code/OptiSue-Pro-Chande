@@ -115,6 +115,23 @@
                         <div class="font-bold mb-1"><i class="fa-solid fa-stethoscope"></i> Análisis:</div>
                         <span id="diagnosis-text" class="block italic leading-tight"></span>
                     </div>
+                    <div class="mt-3 p-3 bg-white rounded-lg border border-slate-200" id="contact-lens-prescription">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-600 uppercase"><i class="fa-solid fa-droplet"></i> Graduación Lentes de Contacto</span>
+                            <span class="text-[10px] text-slate-400">Opcional</span>
+                        </div>
+                        <div class="grid grid-cols-6 gap-2 text-sm">
+                            <div class="col-span-1 text-xs text-slate-500 flex items-center">OD</div>
+                            <input id="cl_od_sph" type="text" placeholder="Sph" class="gen-input col-span-2">
+                            <input id="cl_od_cyl" type="text" placeholder="Cyl" class="gen-input col-span-2">
+                            <input id="cl_od_axis" type="text" placeholder="Axis" class="gen-input col-span-1">
+
+                            <div class="col-span-1 text-xs text-slate-500 flex items-center">OI</div>
+                            <input id="cl_oi_sph" type="text" placeholder="Sph" class="gen-input col-span-2">
+                            <input id="cl_oi_cyl" type="text" placeholder="Cyl" class="gen-input col-span-2">
+                            <input id="cl_oi_axis" type="text" placeholder="Axis" class="gen-input col-span-1">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 shadow-sm">
@@ -149,6 +166,16 @@
 
         <!-- PIE DE PÁGINA FINANCIERO -->
         <div class="p-5 border-t border-slate-200 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-20 bg-white">
+            
+            <div class="mb-4 bg-slate-100 p-1.5 rounded-lg flex gap-1 text-[11px] font-bold relative">
+                <button id="btn-metodo-bs" onclick="window.setMetodoPago('bs')" class="flex-1 py-1.5 rounded-md transition-all text-blue-700 bg-white shadow-sm border border-blue-200">
+                    <i class="fa-solid fa-credit-card"></i> Paga en Bs
+                </button>
+                <button id="btn-metodo-cash" onclick="window.setMetodoPago('cash')" class="flex-1 py-1.5 rounded-md transition-all text-slate-500 hover:text-slate-700">
+                    <i class="fa-solid fa-money-bill-wave"></i> Divisas Efectivo
+                </button>
+            </div>
+
             <div class="flex justify-between items-end mb-2">
                 <span class="text-xs font-bold text-slate-400 uppercase">Total Estimado</span>
                 <span class="text-xl font-bold text-slate-800" id="cart-total">$0.00</span>
@@ -174,7 +201,6 @@
     <main class="flex-1 flex flex-col bg-slate-50 relative overflow-hidden">
         <header class="bg-white px-8 pt-5 pb-3 border-b border-slate-200 shadow-sm z-10 flex flex-col gap-3">
             
-            <!-- Buscador y Título -->
             <div class="flex justify-between items-center">
                 <div>
                     <h1 class="text-xl font-bold text-slate-800" id="page-title">Bienvenido</h1>
@@ -186,7 +212,6 @@
                 </div>
             </div>
             
-            <!-- BARRA DE FILTROS Y HERRAMIENTAS -->
             <div class="flex flex-col gap-2">
                 <div class="flex justify-between items-center">
                     <div id="filter-level-1" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden"></div>
@@ -201,7 +226,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- FILTROS SECUNDARIOS (Nivel 2 dinámico) -->
                 <div id="filter-level-2" class="flex gap-1 overflow-x-auto pb-1 no-scrollbar hidden mt-1 border-t border-dashed border-slate-100 pt-2"></div>
             </div>
         </header>
@@ -219,6 +243,22 @@
                 <button onclick="window.toggleModal(false)" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-6">
+                
+                <div class="bg-white p-4 rounded border border-slate-200">
+                    <h3 class="font-bold text-sm text-slate-800 mb-3"><i class="fa-solid fa-money-bill-transfer text-green-600"></i> Tasas Cambiarias del Día</h3>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Tasa Oficial (BCV)</label>
+                            <input type="number" id="input-bcv" oninput="window.saveRates()" class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-sm font-bold outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Tasa Reposición (TDR)</label>
+                            <input type="number" id="input-tdr" oninput="window.saveRates()" class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-sm font-bold outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">Los precios en mostrador se protegerán automáticamente en base al gap de estas tasas.</p>
+                </div>
+
                 <div class="bg-blue-50 p-4 rounded border border-blue-100">
                     <h3 class="font-bold text-sm text-blue-900 mb-2">Estado de Conexión</h3>
                     <p class="text-xs text-blue-700">Conectado a Google Sheets: <strong>SÍ</strong></p>
@@ -233,15 +273,21 @@
 
     <script>
         // ============================================================
-        // CONFIGURACIONES PRINCIPALES
+        // CONFIGURACIONES PRINCIPALES Y VARIABLES GLOBALES
         // ============================================================
         const LOGO_URL = "https://i.imgur.com/OExRqNM.png";
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuZ4_YpXxbqtxBaLaFr7zAE3cTZQAXDG74riH7q7tLd5bxfFitT2jYSez25563KoeBGYOeMnGTuGP1/pub?output=csv";
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz8kM-HdyiJh8TU8ynHNG4pvNm3UqWahKcTu30bwKVWuch39P9MShV8fIssIedQM6APXg/exec"; 
 
+        window.tasaBCV = parseFloat(localStorage.getItem('optiTasaBCV')) || 459.45;
+        window.tasaTDR = parseFloat(localStorage.getItem('optiTasaTDR')) || 651.78;
+        window.metodoPago = 'bs'; 
+
         document.addEventListener('DOMContentLoaded', () => {
             const logoImg = document.getElementById('main-logo');
             if(LOGO_URL && LOGO_URL.length > 5) logoImg.src = LOGO_URL;
+            document.getElementById('input-bcv').value = window.tasaBCV;
+            document.getElementById('input-tdr').value = window.tasaTDR;
         });
 
         window.cart =[];
@@ -250,29 +296,89 @@
         window.activeL2 = 'all';
         window.sortOrder = 'default'; 
 
-        let db = { services: [], frames: [], lenses: [], contacts:[] };
+        let db = { services: [], frames: [], lenses:[], contacts:[] };
 
-        // --- SISTEMA DE FILTROS ACTUALIZADO ---
         const configL1 = {
             frames:[ {id: 'oftalmica', label: 'Oftálmicas'}, {id: 'sol', label: 'De Sol'}, {id: 'nuevas', label: '🔥 Nuevas'} ],
-            contacts:[ 
-                {id: 'sph', label: 'Esférico'}, 
-                {id: 'toric', label: 'Tórico'}, 
-                {id: 'multi', label: 'Multifocal'},
-                {id: 'cosmeticos', label: 'Cosméticos'}
-            ],
-            // AQUI AGREGAMOS OCUPACIONAL y estandarizamos los nombres
-            lenses:[ 
-                {id: 'monofocal', label: 'Monofocal'}, 
-                {id: 'bifocal', label: 'Bifocal'}, 
-                {id: 'progresivo', label: 'Multifocal / Prog.'},
-                {id: 'ocupacional', label: 'Ocupacional'}
-            ] 
+            contacts:[ {id: 'sph', label: 'Esférico'}, {id: 'toric', label: 'Tórico'}, {id: 'multi', label: 'Multifocal'}, {id: 'cosmeticos', label: 'Cosméticos'} ],
+            lenses:[ {id: 'monofocal', label: 'Monofocal'}, {id: 'bifocal', label: 'Bifocal'}, {id: 'progresivo', label: 'Multifocal / Prog.'}, {id: 'ocupacional', label: 'Ocupacional'} ] 
         };
 
         const configL2_Frames =[
             {id: 'dama', label: 'Dama'}, {id: 'caballero', label: 'Caballero'}, {id: 'nino', label: 'Niños'}
         ];
+
+        // ============================================================
+        // FUNCIONES DE ARBITRAJE Y PRECIOS CON COSTO/MARGEN
+        // ============================================================
+        
+        window.saveRates = function() {
+            window.tasaBCV = parseFloat(document.getElementById('input-bcv').value) || 1;
+            window.tasaTDR = parseFloat(document.getElementById('input-tdr').value) || 1;
+            localStorage.setItem('optiTasaBCV', window.tasaBCV);
+            localStorage.setItem('optiTasaTDR', window.tasaTDR);
+            window.renderGrid();
+            window.renderCart();
+        };
+
+        window.setMetodoPago = function(metodo) {
+            window.metodoPago = metodo;
+            if (metodo === 'bs') {
+                document.getElementById('btn-metodo-bs').className = "flex-1 py-1.5 rounded-md transition-all text-blue-700 bg-white shadow-sm border border-blue-200";
+                document.getElementById('btn-metodo-cash').className = "flex-1 py-1.5 rounded-md transition-all text-slate-500 hover:text-slate-700";
+            } else {
+                document.getElementById('btn-metodo-cash').className = "flex-1 py-1.5 rounded-md transition-all text-green-700 bg-white shadow-sm border border-green-200";
+                document.getElementById('btn-metodo-bs').className = "flex-1 py-1.5 rounded-md transition-all text-slate-500 hover:text-slate-700";
+            }
+            window.renderCart();
+        };
+
+        window.calcularPreciosItem = function(item) {
+            let baseCost = 0;
+            let ganancia = 0;
+            let targetPrice = 0;
+
+            // 1. Determinar el Costo y la Ganancia Base
+            if (item.costo > 0 && item.margen > 0) {
+                let marginPct = item.margen;
+                if (marginPct >= 100) marginPct = 99.9; // Protección matemática
+                
+                // Si es un cristal (lenses), asumimos que el costo es de 1 unidad y lo multiplicamos x2 para vender el Par.
+                // Si son monturas o lentes de contacto, el costo ya representa la caja/pieza entera (x1).
+                baseCost = (item.category === 'lenses') ? (item.costo * 2) : item.costo;
+                
+                // Fórmula para calcular precio de venta en base al margen deseado
+                targetPrice = baseCost / (1 - (marginPct / 100));
+                ganancia = targetPrice - baseCost;
+            } else {
+                // RED DE SEGURIDAD: Si no hay costo/margen en Excel, usar la columna vieja 'price' asumiendo 60% de margen.
+                targetPrice = parseFloat(item.price) || 0;
+                baseCost = targetPrice * 0.40;
+                ganancia = targetPrice * 0.60;
+            }
+
+            // 2. Si no es cristal ni lente de contacto, NO hay arbitraje. Venta plana.
+            if (item.category !== 'lenses' && item.category !== 'contact_lenses' && item.category !== 'contacts') {
+                return { 
+                    etiqueta: targetPrice, 
+                    efectivo: targetPrice, 
+                    bs: targetPrice * window.tasaBCV 
+                };
+            }
+
+            // 3. Aplicar Arbitraje Financiero a Cristales y Lentes de Contacto
+            // Precio Oficial BCV (Protege la ganancia inflando por la brecha cambiaria)
+            let exactEtiqueta = baseCost + (ganancia * (window.tasaTDR / window.tasaBCV));
+            let etiqueta = Math.ceil(exactEtiqueta / 5) * 5;
+
+            // Precio Oferta Efectivo (Baja el costo por arbitraje, la ganancia queda intacta)
+            let exactEfectivo = (baseCost * (window.tasaBCV / window.tasaTDR)) + ganancia;
+            let efectivo = Math.ceil(exactEfectivo / 5) * 5;
+
+            let bs = etiqueta * window.tasaBCV;
+
+            return { etiqueta, efectivo, bs };
+        };
 
         // --- CARGA DESDE LA NUBE ---
         async function loadInventoryFromCloud() {
@@ -302,12 +408,16 @@
 
         function loadLocalOrDefaults() {
             const local = localStorage.getItem('optiSuiteDB');
-            if(local) { db = JSON.parse(local); window.renderGrid(); }
+            if(local) {
+                try { db = JSON.parse(local); window.renderGrid(); return; } catch(e) { console.warn('Error', e); }
+            }
+            db = { services:[], frames: [], lenses: [], contacts:[] };
+            window.renderGrid();
         }
 
         function parseCSV(csvText) {
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
-            db = { services: [], frames:[], lenses: [], contacts:[] };
+            db = { services: [], frames:[], lenses:[], contacts:[] };
 
             for (let i = 1; i < rows.length; i++) {
                 const values = rows[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/);
@@ -325,22 +435,23 @@
 
                 let rawImage = clean[8] || ''; 
                 if(rawImage.includes('drive.google.com') && rawImage.includes('/view')) {
-                    try {
-                        const fileId = rawImage.match(/\/d\/(.+?)\//)[1];
-                        rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId;
-                    } catch(e){}
+                    try { const fileId = rawImage.match(/\/d\/(.+?)\//)[1]; rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId; } catch(e){}
                 }
 
+                // NUEVA LECTURA DE COLUMNAS (K=10: Costo, L=11: Margen)
                 const item = {
                     id: clean[0],
                     category: category,
                     name: clean[2],
-                    price: parseFloat(clean[3]) || 0,
+                    price: parseFloat(clean[3]) || 0, // Fallback de seguridad
                     brand: clean[4] || '',
-                    type: (clean[5] || '').toLowerCase(), // Usado para filtros
+                    type: (clean[5] || '').toLowerCase(),
                     desc: clean[6] || '',
                     gender: (clean[7] || '').toLowerCase(), 
-                    image: rawImage
+                    image: rawImage,
+                    fecha: clean[9] || '',
+                    costo: parseFloat(clean[10]) || 0,
+                    margen: parseFloat(clean[11]) || 0
                 };
 
                 if(!item.image) {
@@ -360,148 +471,109 @@
         // --- SISTEMA DE UI DE PESTAÑAS ---
         window.setCategory = function(cat) {
             window.currentCategory = cat;
-            window.activeL1 = 'all';
-            window.activeL2 = 'all';
-            window.sortOrder = 'default';
-            document.getElementById('budget-input').value = '';
-            updateSortBtnUI();
+            window.activeL1 = 'all'; window.activeL2 = 'all'; window.sortOrder = 'default';
+            document.getElementById('budget-input').value = ''; updateSortBtnUI();
             
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
             
-            const titles = { services:['Servicios Clínicos','Honorarios'], frames: ['Monturas','Catálogo'], lenses: ['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
+            const titles = { services:['Servicios Clínicos','Honorarios'], frames:['Monturas','Catálogo'], lenses: ['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
             document.getElementById('page-title').innerText = titles[cat][0];
             document.getElementById('page-subtitle').innerText = titles[cat][1];
             
-            renderFiltersUI();
-            window.renderGrid();
+            renderFiltersUI(); window.renderGrid();
         };
 
         function renderFiltersUI() {
-            const bar1 = document.getElementById('filter-level-1');
-            const bar2 = document.getElementById('filter-level-2');
+            const bar1 = document.getElementById('filter-level-1'); const bar2 = document.getElementById('filter-level-2');
             const cat = window.currentCategory;
-            bar1.innerHTML = ''; 
-            if(bar2) { bar2.innerHTML = ''; bar2.classList.add('hidden'); }
+            bar1.innerHTML = ''; if(bar2) { bar2.innerHTML = ''; bar2.classList.add('hidden'); }
             bar1.classList.add('hidden'); 
 
             if(configL1[cat]) {
                 bar1.classList.remove('hidden');
                 let html = `<div onclick="window.applyL1('all')" class="filter-chip ${window.activeL1==='all'?'active':'inactive'} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">Todos</div>`;
-                configL1[cat].forEach(f => { 
-                    let specialClass = window.activeL1===f.id ? 'active' : 'inactive';
-                    html += `<div onclick="window.applyL1('${f.id}')" class="filter-chip ${specialClass} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">${f.label}</div>`; 
-                });
+                configL1[cat].forEach(f => { html += `<div onclick="window.applyL1('${f.id}')" class="filter-chip ${window.activeL1===f.id?'active':'inactive'} text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-200">${f.label}</div>`; });
                 bar1.innerHTML = html;
             }
 
-            // Sub-filtros Nivel 2 para Monturas (género)
             if(cat === 'frames' && bar2) {
                 bar2.classList.remove('hidden');
                 let html2 = `<div onclick="window.applyL2('all')" class="sub-chip ${window.activeL2==='all'?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">Cualquier Género</div>`;
-                configL2_Frames.forEach(f => { 
-                    html2 += `<div onclick="window.applyL2('${f.id}')" class="sub-chip ${window.activeL2===f.id?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">${f.label}</div>`; 
-                });
+                configL2_Frames.forEach(f => { html2 += `<div onclick="window.applyL2('${f.id}')" class="sub-chip ${window.activeL2===f.id?'active':'inactive'} text-[10px] uppercase px-3 py-1 rounded-full border">${f.label}</div>`; });
                 bar2.innerHTML = html2;
             }
         }
 
-        window.applyL1 = function(id) {
-            window.activeL1 = id;
-            renderFiltersUI();
-            window.renderGrid();
-        };
-
-        window.applyL2 = function(id) {
-            window.activeL2 = id;
-            renderFiltersUI();
-            window.renderGrid();
-        };
+        window.applyL1 = function(id) { window.activeL1 = id; renderFiltersUI(); window.renderGrid(); };
+        window.applyL2 = function(id) { window.activeL2 = id; renderFiltersUI(); window.renderGrid(); };
 
         window.toggleSort = function() {
-            if(window.sortOrder === 'default') window.sortOrder = 'asc';
-            else if(window.sortOrder === 'asc') window.sortOrder = 'desc';
-            else window.sortOrder = 'default';
-            updateSortBtnUI();
-            window.renderGrid();
+            if(window.sortOrder === 'default') window.sortOrder = 'asc'; else if(window.sortOrder === 'asc') window.sortOrder = 'desc'; else window.sortOrder = 'default';
+            updateSortBtnUI(); window.renderGrid();
         };
 
         function updateSortBtnUI() {
-            const btn = document.getElementById('btn-sort');
-            const icon = btn.querySelector('i');
-            const label = document.getElementById('sort-label');
+            const btn = document.getElementById('btn-sort'); const icon = btn.querySelector('i'); const label = document.getElementById('sort-label');
             btn.className = "tool-btn " + (window.sortOrder === 'default' ? 'tool-btn-inactive' : 'tool-btn-active');
             if(window.sortOrder === 'asc') { icon.className = "fa-solid fa-arrow-up-1-9 text-blue-600"; label.innerText = "Menor $"; } 
             else if (window.sortOrder === 'desc') { icon.className = "fa-solid fa-arrow-down-9-1 text-blue-600"; label.innerText = "Mayor $"; } 
             else { icon.className = "fa-solid fa-arrow-up-wide-short text-slate-400"; label.innerText = "Precio"; }
         }
 
-        // --- GRID RENDER MEJORADO CON DICCIONARIO ---
+        // --- GRID RENDER ---
         window.renderGrid = function() {
             const grid = document.getElementById('catalog-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
+            if(!grid) return; grid.innerHTML = '';
             
             const rawTerm = document.getElementById('search-input').value.toLowerCase().trim();
             const searchTerms = rawTerm.split(/\s+/).filter(w => w.length > 0);
             const budgetMax = parseFloat(document.getElementById('budget-input').value) || Infinity;
-
             const items = db[window.currentCategory] ||[];
             const rx = window.getRxData();
 
-            // DICCIONARIO DE SINÓNIMOS (Mejorado con índices de refracción)
             const aliases = {
-                'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
-                'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible'],
-                'azul':['azul','azúl','blue','bluecut','blue-cut','blue cut','blueguard','blue guard','blueblock','blue-block','blue block','bblock','bb','bluelight','blue light','blue-light','filtro azul','filtro-azul','filtrante azul','filtrante-azul'],
-                'blue':['azul','azúl','blue','bluecut','blue-cut','blue cut','blueguard','blue guard','blueblock','blue-block','blue block','bblock','bb','bluelight','blue light','blue-light','filtro azul','filtro-azul','filtrante azul','filtrante-azul'],
-                'bluelight':['bluelight','blue light','blue-light','filtrante azul','filtro azul','bluelite'],
-                'blueblock':['blueblock','blue-block','blue block','bblock','bb','blueblocker','blue blocker','blueblockers'],
-                'bb':['bb','bblock','b-block'],
-                'ar':['ar ', ' ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal'],
-                'antirreflejo':['ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal'],
+                'foto':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible', 'photofusion', 'fotocromatico', 'fotocromático'],
+                'fotocromatico':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible', 'photofusion', 'fotocromatico', 'fotocromático'],
+                'photo':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible', 'photofusion', 'fotocromatico', 'fotocromático'],
+                'transitions':['foto', 'photo', 'transitions', 'chromactive', 'colormatic', 'fotosensible', 'photofusion', 'fotocromatico', 'fotocromático'],
+                'azul':['azul', 'blue', 'bluecut', 'blueguard', 'blueblock', 'bb', 'filtro azul'],
+                'blue':['azul', 'blue', 'bluecut', 'blueguard', 'blueblock', 'bb', 'filtro azul'],
+                'blueblock':['azul', 'blue', 'bluecut', 'blueguard', 'blueblock', 'bb', 'filtro azul'],
+                'ar':['ar ', ' ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal', 'guardian'],
+                'antirreflejo':['ar ', ' ar', 'antirreflejo', 'hmc', 'duravision', 'quarzo', 'crizal', 'guardian'],
                 'poly':['poly', 'poli', 'policarbonato', 'pc'],
                 'policarbonato':['poly', 'poli', 'policarbonato', 'pc'],
                 'progresivo':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
-                'multifocal':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux'],
+                'multifocal':['prog', 'progresivo', 'progressive', 'multifocal', 'varilux', 'multi'],
                 'monofocal':['mono', 'monofocal', 'vision sencilla', 'vs', 'single vision'],
                 'bifocal':['bifocal', 'kto', 'flat-top', 'flat top', 'invisible'],
                 'ocupacional':['ocupacional', 'office', 'computadora', 'desktop'],
-                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                'indice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                'índice':['indice', 'índice', '1.60', '1.61', '1.67', '1.74', 'hi-index'],
-                // --- SINÓNIMOS DE ÍNDICES DE REFRACCIÓN ---
-                '1.60':['1.60', '1.6', 'mr8', 'mr-8'],
-                '1.6':['1.60', '1.6', 'mr8', 'mr-8'],
-                'mr8':['1.60', '1.6', 'mr8', 'mr-8'],
-                'mr-8': ['1.60', '1.6', 'mr8', 'mr-8'],
-                '1.56':['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
-                'nk55':['1.56', 'nk55', 'nk-55', 'medio', 'mid-index'],
-                '1.67':['1.67', 'mr10', 'mr-10', 'extra', 'hi-index'],
-                'mr10':['1.67', 'mr10', 'mr-10', 'extra', 'hi-index'],
-                '1.74':['1.74', '1.7', 'ultra'],
-                // --- synonyms for contact lenses ---
-                'sph':['sph','esferico','esférico','spherical'],
-                'toric':['toric','tórico','torico','toric'],
-                'multi': ['multi','multifocal','multí'],
-                // --- prefabricated / terminado ---
-                'terminado':['terminado','terminados','terminada','terminadas','pre fabricado','prefabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado','ready-made','ready made','readymade','stock','estandar','estándar','standard','semi-terminado','semi terminado'],
-                'prefabricado':['prefabricado','pre fabricado','pre-fabricado','prefabricados','pre fabricados','pre-fabricados','preformado','preformados','pre formado','pre-formado'],
-                'cosmeticos':['cosmeticos','cosméticos','cosmetic','makeup','maquillaje'],
+                'alto':['alto', '1.60', '1.61', '1.67', '1.74', 'hi-index', 'mr8', 'mr7'],
+                '1.60':['1.60', 'mr8', 'mr-8'],
+                '1.56':['1.56', 'nk55', 'nk-55', 'medio'],
+                '1.67':['1.67', 'mr10', 'mr7', 'extra', 'hi-index'],
+                '1.74':['1.74', 'mr174', 'ultra'],
+                'terminado':['terminado', 'terminados', 'pre fabricado', 'prefabricado', 'stock', 'estandar'],
+                'prefabricado':['prefabricado', 'pre fabricado', 'pre-fabricado', 'preformado'],
+                'sph':['sph', 'esferico', 'esférico', 'spherical'],
+                'toric':['toric', 'tórico', 'torico'],
+                'multi':['multi', 'multifocal', 'multí'],
+                'cosmeticos':['cosmeticos', 'cosméticos', 'cosmetic', 'makeup', 'maquillaje']
             };
 
             let filtered = items.filter(item => {
-                if(item.price > budgetMax) return false;
+                let p = window.calcularPreciosItem(item);
+                let checkPrice = (window.metodoPago === 'bs') ? p.etiqueta : p.efectivo;
+                if(checkPrice > budgetMax) return false;
 
                 let itemType = (item.type || '').toLowerCase();
                 const itemData =[item.name||'', item.brand||'', item.desc||'', itemType, item.gender||'', item.id||''].join(' ').toLowerCase();
 
-                // Detect if the user explicitly searched for prefabricated/terminado
                 const prefabAliases = (aliases['terminado'] || []).concat(aliases['prefabricado'] || []);
                 const excludeTallado =['tallado','tallados','tallada','talladas','a medida','hecho a medida','fabricado a medida','made to measure','cut-to-order','cut to order','custom','personalizado','a-medida','a_medida','talla'];
                 const searchTriggeredPrefab = searchTerms.length > 0 && searchTerms.some(word => prefabAliases.includes(word));
 
-                // Filtros de Categoría por Botón
                 if (window.currentCategory === 'frames') {
                     let isSun = itemType.includes('sol') || (item.desc || '').toLowerCase().includes('sol');
                     if (window.activeL1 === 'sol' && !isSun) return false;
@@ -517,20 +589,18 @@
                     }
                 }
                 else if (window.currentCategory === 'lenses') {
-                    // Si el usuario busca "terminado/prefabricado", incluir solo los que sean prefabricados
                     if (searchTriggeredPrefab) {
                         const matchesPrefab = prefabAliases.some(a => itemData.includes(a) || itemType.includes(a));
                         const isTallado = excludeTallado.some(ex => itemData.includes(ex) || itemType.includes(ex));
                         if (!matchesPrefab) return false;
                         if (isTallado) return false;
                     }
-
-                    // Uso inteligente del diccionario para los botones
                     if (window.activeL1 !== 'all') {
-                        let aliasL1 = aliases[window.activeL1] || [window.activeL1];
+                        let aliasL1 = aliases[window.activeL1] ||[window.activeL1];
                         let matchL1 = aliasL1.some(a => itemType.includes(a) || itemData.includes(a));
                         if (!matchL1) return false;
                     }
+                    if (!window.canMakeLens(item, rx)) return false;
                 }
                 else if (window.currentCategory === 'contacts') {
                     if (window.activeL1 !== 'all') {
@@ -540,21 +610,15 @@
                     }
                 }
 
-                // Súper Buscador General
                 if (searchTerms.length === 0) return true;
-
                 return searchTerms.every(word => {
-                    if (aliases[word]) {
-                        return aliases[word].some(alias => itemData.includes(alias));
-                    } else {
-                        return itemData.includes(word);
-                    }
+                    if (aliases[word]) return aliases[word].some(alias => itemData.includes(alias));
+                    else return itemData.includes(word);
                 });
             });
 
-            // Ordenamiento
-            if(window.sortOrder === 'asc') { filtered.sort((a, b) => a.price - b.price); } 
-            else if (window.sortOrder === 'desc') { filtered.sort((a, b) => b.price - a.price); }
+            if(window.sortOrder === 'asc') { filtered.sort((a, b) => window.calcularPreciosItem(a).etiqueta - window.calcularPreciosItem(b).etiqueta); } 
+            else if (window.sortOrder === 'desc') { filtered.sort((a, b) => window.calcularPreciosItem(b).etiqueta - window.calcularPreciosItem(a).etiqueta); }
 
             if(filtered.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">No hay productos que coincidan.</div>'; return; }
 
@@ -567,7 +631,6 @@
                 if(window.currentCategory === 'lenses') {
                     let textCheck = (item.name + " " + item.desc + " " + item.gender).toLowerCase();
                     let isHighIndex = textCheck.includes('alto') || textCheck.includes('1.60') || textCheck.includes('1.61') || textCheck.includes('1.67') || textCheck.includes('1.74');
-                    
                     if(isHighIndex && (Math.abs(rx.od.sph)>=4||Math.abs(rx.oi.sph)>=4)) { isRec=true; recReason="Espesor"; }
                     else if(item.type && item.type.toLowerCase().includes('progressive') && (rx.od.add>0||rx.oi.add>0)) { isRec=true; recReason="Presbicia"; }
                 }
@@ -578,206 +641,154 @@
                 if(imgUrl && !imgUrl.startsWith('http')) imgUrl = ''; 
 
                 if(imgUrl) {
-                    visual = '<div class="relative w-full h-full"><div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-300 text-4xl"><i class="fa-solid fa-image"></i></div><img src="' + imgUrl + '" class="relative w-full h-full object-contain bg-white transition-transform duration-300 group-hover:scale-105" onerror="this.style.display=\'none\'" alt="' + item.name + '"></div>';
+                    visual = `<div class="relative w-full h-full"><div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-300 text-4xl"><i class="fa-solid fa-image"></i></div><img src="${imgUrl}" class="relative w-full h-full object-contain bg-white transition-transform duration-300 group-hover:scale-105" onerror="this.style.display='none'" alt="${item.name}"></div>`;
                 } else {
-                    visual = '<div class="w-full h-full bg-slate-100 text-slate-500 flex items-center justify-center text-5xl transition-transform duration-300 group-hover:scale-110"><i class="fa-solid ' + (item.icon || 'fa-box') + '"></i></div>';
+                    visual = `<div class="w-full h-full bg-slate-100 text-slate-500 flex items-center justify-center text-5xl transition-transform duration-300 group-hover:scale-110"><i class="fa-solid ${item.icon || 'fa-box'}"></i></div>`;
                 }
 
                 let brandHtml = '';
-                if(item.brand && item.brand.length > 0) {
-                    brandHtml = '<div class="text-[11px] font-bold text-blue-700 uppercase tracking-wide mb-0.5 leading-snug">' + item.brand + '</div>';
+                if(item.brand && item.brand.length > 0) { brandHtml = `<div class="text-[11px] font-bold text-blue-700 uppercase tracking-wide mb-0.5 leading-snug">${item.brand}</div>`; }
+
+                let htmlPrecios = '';
+                let p = window.calcularPreciosItem(item);
+
+                if (item.category === 'lenses' || item.category === 'contacts' || item.category === 'contact_lenses') {
+                    htmlPrecios = `
+                        <div class="flex justify-between items-end mt-3 pt-3 border-t border-slate-100 relative min-h-[60px]">
+                            <div class="flex flex-col">
+                                <span class="font-black text-2xl text-slate-900 leading-none">$${p.etiqueta.toLocaleString('en-US')}</span>
+                                <span class="text-[10px] font-bold text-slate-500 mt-1">Bs ${p.bs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                <span class="text-[10px] font-bold text-green-700 mt-1 bg-green-50 px-1.5 py-0.5 rounded border border-green-200 w-max"><i class="fa-solid fa-money-bill-wave"></i> Efectivo: $${p.efectivo.toLocaleString('en-US')}</span>
+                            </div>
+                            <button class="add-to-cart bg-slate-900 hover:bg-blue-600 text-white w-9 h-9 rounded-full flex items-center justify-center transition shadow-md active:scale-95 absolute right-0 bottom-0"><i class="fa-solid fa-plus text-sm"></i></button>
+                        </div>
+                    `;
+                } else {
+                    htmlPrecios = `
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
+                            <span class="font-bold text-lg text-slate-900">$${p.etiqueta.toLocaleString('en-US')}</span>
+                            <button class="add-to-cart bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    `;
                 }
 
-                // CORRECCIÓN: Comillas simples correctamente escapadas en el evento onclick del botón del carrito
-                card.innerHTML = 
-                    '<div class="rec-badge absolute top-3 right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow z-10 uppercase"><i class="fa-solid fa-star"></i> ' + recReason + '</div>' +
-                    '<div class="h-48 overflow-hidden flex items-center justify-center bg-white p-2">' + visual + '</div>' +
-                    '<div class="p-4 border-t border-slate-100">' +
-                        brandHtml + 
-                        '<h4 class="font-bold text-slate-800 text-sm leading-tight">' + item.name + '</h4>' +
-                        '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + (item.desc || '') + '</p>' +
-                        '<div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100"><span class="font-bold text-lg text-slate-900">$' + item.price + '</span><button onclick="window.addToCart(\'' + item.id + '\', \'' + window.currentCategory + '\')" class="bg-slate-900 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button></div></div>';
+                card.innerHTML = `<div class="rec-badge absolute top-3 right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow z-10 uppercase"><i class="fa-solid fa-star"></i> ${recReason}</div><div class="h-48 overflow-hidden flex items-center justify-center bg-white p-2">${visual}</div><div class="p-4 border-t border-slate-100">${brandHtml} <h4 class="font-bold text-slate-800 text-sm leading-tight">${item.name}</h4><p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc || ''}</p>${htmlPrecios}</div>`;
+                    
                 grid.appendChild(card);
+                try { const addBtn = card.querySelector('.add-to-cart'); if(addBtn) addBtn.addEventListener('click', function(e){ e.preventDefault(); window.addToCart(item.id, window.currentCategory); }); } catch (e) { }
             });
         };
 
-        // --- SISTEMA DE RX, CARRITO Y WHATSAPP ---
-        window.getRxData = function() {
-            return { od: { sph: parseFloat(document.getElementById('odSphere').value)||0, cyl: parseFloat(document.getElementById('odCyl').value)||0, axis: parseFloat(document.getElementById('odAxis').value)||0, add: parseFloat(document.getElementById('odAdd').value)||0 }, oi: { sph: parseFloat(document.getElementById('oiSphere').value)||0, cyl: parseFloat(document.getElementById('oiCyl').value)||0, axis: parseFloat(document.getElementById('oiAxis').value)||0, add: parseFloat(document.getElementById('oiAdd').value)||0 } };
-        };
-        
-        window.updateRecommendations = function() {
-            const rx = window.getRxData();
-            const diagBox = document.getElementById('rx-diagnosis');
-            const diagText = document.getElementById('diagnosis-text');
-            let text =[];
-            if(Math.abs(rx.od.sph)>=4 || Math.abs(rx.oi.sph)>=4) text.push("Alto Índice");
-            if(Math.abs(rx.od.cyl)>=0.75 || Math.abs(rx.oi.cyl)>=0.75) text.push("Astigmatismo");
-            if(rx.od.add>0 || rx.oi.add>0) text.push("Presbicia");
-            if(text.length===0) { if(diagBox) diagBox.classList.add('hidden'); } 
-            else { if(diagBox) diagBox.classList.remove('hidden'); if(diagText) diagText.innerText = text.join(" + "); }
-            window.renderGrid();
-        };
+        // --- SISTEMA DE RX Y WHATSAPP ---
+        window.getRxData = function() { return { od: { sph: parseFloat(document.getElementById('odSphere').value)||0, cyl: parseFloat(document.getElementById('odCyl').value)||0, axis: parseFloat(document.getElementById('odAxis').value)||0, add: parseFloat(document.getElementById('odAdd').value)||0 }, oi: { sph: parseFloat(document.getElementById('oiSphere').value)||0, cyl: parseFloat(document.getElementById('oiCyl').value)||0, axis: parseFloat(document.getElementById('oiAxis').value)||0, add: parseFloat(document.getElementById('oiAdd').value)||0 } }; };
+        window.updateRecommendations = function() { const rx = window.getRxData(); const diagBox = document.getElementById('rx-diagnosis'); const diagText = document.getElementById('diagnosis-text'); let text =[]; if(Math.abs(rx.od.sph)>=4 || Math.abs(rx.oi.sph)>=4) text.push("Alto Índice"); if(Math.abs(rx.od.cyl)>=0.75 || Math.abs(rx.oi.cyl)>=0.75) text.push("Astigmatismo"); if(rx.od.add>0 || rx.oi.add>0) text.push("Presbicia"); if(text.length===0) { if(diagBox) diagBox.classList.add('hidden'); } else { if(diagBox) diagBox.classList.remove('hidden'); if(diagText) diagText.innerText = text.join(" + "); } window.renderGrid(); };
+        // --- FUNCIÓN DE COMPATIBILIDAD CLÍNICA CORREGIDA ---
+        window.canMakeLens = function(item, rx) {
+            if(!item) return true;
+            const odSph = Math.abs(parseFloat(rx.od.sph) || 0); const oiSph = Math.abs(parseFloat(rx.oi.sph) || 0);
+            const maxSph = Math.max(odSph, oiSph);
+            const odCyl = Math.abs(parseFloat(rx.od.cyl) || 0); const oiCyl = Math.abs(parseFloat(rx.oi.cyl) || 0);
+            const maxCyl = Math.max(odCyl, oiCyl);
+            const add = Math.max(parseFloat(rx.od.add)||0, parseFloat(rx.oi.add)||0);
+            const tagsText = (Array.isArray(item.tags) ? item.tags.join(' ') : '');
+            const text = (item.name + ' ' + (item.desc||'') + ' ' + (item.type||'') + ' ' + (item.brand||'') + ' ' + (item.gender||'') + ' ' + tagsText).toLowerCase();
 
-        window.calcTotalDP = function() {
-            const od = parseFloat(document.getElementById('odDnp').value)||0; const oi = parseFloat(document.getElementById('oiDnp').value)||0;
-            const disp = document.getElementById('total-dp-display'); if(disp) disp.innerText = (od>0&&oi>0) ? 'DP Total: ' + (od+oi).toFixed(1) + ' mm' : 'DP Total: --';
+            // REGLAS ESTRICTAS SOLO PARA LENTES DE CONTACTO
+            if (item.category === 'contacts' || item.category === 'contact_lenses') {
+                // Astigmatismo en L.C. requiere diseño Tórico
+                if(maxCyl >= 0.75) { 
+                    if(!(text.includes('toric') || text.includes('tórico') || text.includes('torico'))) return false; 
+                }
+                // Presbicia en L.C. requiere diseño Multifocal
+                if(add > 0) { 
+                    if(!(text.includes('multi') || text.includes('multifocal'))) return false; 
+                }
+                return true;
+            }
+
+            // REGLAS INTELIGENTES PARA CRISTALES OFTÁLMICOS
+            if (item.category === 'lenses') {
+                // Si el paciente tiene Presbicia (ADD) y estás en la pestaña "Todos",
+                // el sistema oculta los monofocales para no estorbar y te muestra solo los progresivos/bifocales.
+                // (Si haces clic manual en el botón "Monofocal", sí te los mostrará por si quieres hacerle unos lentes de solo lectura).
+                if(add > 0 && window.activeL1 === 'all') { 
+                    if(!(text.includes('progress') || text.includes('multifocal') || text.includes('progres') || text.includes('varilux') || text.includes('bifocal') || text.includes('ocupacional') || text.includes('office'))) return false; 
+                }
+                // Se eliminó el bloqueo de cilindro. El laboratorio talla la receta a medida.
+            }
+
+            return true;
         };
+        window.calcTotalDP = function() { const od = parseFloat(document.getElementById('odDnp').value)||0; const oi = parseFloat(document.getElementById('oiDnp').value)||0; const disp = document.getElementById('total-dp-display'); if(disp) disp.innerText = (od>0&&oi>0) ? 'DP Total: ' + (od+oi).toFixed(1) + ' mm' : 'DP Total: --'; };
 
         window.updateBalance = function() {
-            let total = window.cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+            let total = 0;
+            window.cart.forEach(item => {
+                let p = window.calcularPreciosItem(item);
+                total += (window.metodoPago === 'bs') ? p.etiqueta : p.efectivo;
+            });
             let abono = parseFloat(document.getElementById('abono-input').value) || 0;
-            let saldo = total - abono;
-            if(saldo < 0) saldo = 0; 
-            document.getElementById('cart-saldo').innerText = '$' + saldo.toFixed(2);
+            let saldo = total - abono; if(saldo < 0) saldo = 0; 
+            document.getElementById('cart-saldo').innerText = '$' + saldo.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('cart-total').innerText = '$' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         };
 
         window.addToCart = function(id, cat) { 
-            const i = db[cat].find(x => x.id === id); 
+            let mappedCat = cat; if (cat === 'contacts') mappedCat = 'contact_lenses';
+            let i = null; if(db[cat]) i = db[cat].find(x => x.id === id); if(!i && db['contact_lenses']) i = db['contact_lenses'].find(x => x.id === id);
             if(i) { window.cart.push(i); window.renderCart(); } 
         };
-        
-        window.removeFromCart = function(index) { 
-            window.cart.splice(index, 1); 
-            window.renderCart(); 
-        };
+        window.removeFromCart = function(index) { window.cart.splice(index, 1); window.renderCart(); };
         
         window.renderCart = function() {
-            const c = document.getElementById('cart-container'); const t = document.getElementById('cart-total'); const count = document.getElementById('cart-count');
+            const c = document.getElementById('cart-container'); const count = document.getElementById('cart-count');
             if(!c) return; c.innerHTML = ''; if(count) count.innerText = window.cart.length;
-            if(window.cart.length===0) { 
-                c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-300 py-4"><i class="fa-solid fa-cart-shopping text-2xl mb-2"></i><p class="text-xs">Vacío</p></div>'; 
-                if(t) t.innerText = "$0.00"; 
-                window.updateBalance();
-                return; 
-            }
-            let tot = 0; 
+            if(window.cart.length===0) { c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-300 py-4"><i class="fa-solid fa-cart-shopping text-2xl mb-2"></i><p class="text-xs">Vacío</p></div>'; window.updateBalance(); return; }
             window.cart.forEach((x,i)=>{ 
-                tot+=parseFloat(x.price); 
-                c.innerHTML+='<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid '+(x.icon||'fa-box')+' text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">'+x.name+'</div><div class="text-[10px] text-slate-400">$'+x.price+'</div></div></div><button onclick="window.removeFromCart('+i+')" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>'; 
+                let p = window.calcularPreciosItem(x); let displayPrice = (window.metodoPago === 'bs') ? p.etiqueta : p.efectivo;
+                c.innerHTML+=`<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid ${x.icon||'fa-box'} text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">${x.name}</div><div class="text-[10px] text-slate-400">$${displayPrice.toLocaleString('en-US')}</div></div></div><button onclick="window.removeFromCart(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>`; 
             });
-            if(t) t.innerText = '$' + tot.toFixed(2);
             window.updateBalance();
         };
 
-        window.fmtRx = function(value) {
-            let num = parseFloat(value);
-            if (isNaN(num) || num === 0) return 0; 
-            let formatted = Math.abs(num).toFixed(2);
-            return (num > 0 ? "+" : "-") + formatted;
-        };
+        window.fmtRx = function(value) { let num = parseFloat(value); if (isNaN(num) || num === 0) return 0; let formatted = Math.abs(num).toFixed(2); return (num > 0 ? "+" : "-") + formatted; };
 
         window.sendWhatsApp = function() {
-            let name = document.getElementById('patient-name').value || "Paciente";
-            let phone = document.getElementById('patient-phone').value || "";
-            let idCard = document.getElementById('patient-id').value || "";
-            let orderNum = document.getElementById('patient-ot').value || ""; 
-            let rx = window.getRxData();
-            let odDnp = document.getElementById('odDnp').value || "";
-            let odAlt = document.getElementById('odAlt').value || "";
-            let oiDnp = document.getElementById('oiDnp').value || "";
-            let oiAlt = document.getElementById('oiAlt').value || "";
-
+            let name = document.getElementById('patient-name').value || "Paciente"; let phone = document.getElementById('patient-phone').value || ""; let age = document.getElementById('patient-age') ? document.getElementById('patient-age').value || "" : ""; let idCard = document.getElementById('patient-id').value || ""; let orderNum = document.getElementById('patient-ot').value || ""; let rx = window.getRxData(); let odDnp = document.getElementById('odDnp').value || ""; let odAlt = document.getElementById('odAlt').value || ""; let oiDnp = document.getElementById('oiDnp').value || ""; let oiAlt = document.getElementById('oiAlt').value || "";
+            const cl_od_sph = document.getElementById('cl_od_sph') ? document.getElementById('cl_od_sph').value || "" : ""; const cl_od_cyl = document.getElementById('cl_od_cyl') ? document.getElementById('cl_od_cyl').value || "" : ""; const cl_od_axis = document.getElementById('cl_od_axis') ? document.getElementById('cl_od_axis').value || "" : ""; const cl_oi_sph = document.getElementById('cl_oi_sph') ? document.getElementById('cl_oi_sph').value || "" : ""; const cl_oi_cyl = document.getElementById('cl_oi_cyl') ? document.getElementById('cl_oi_cyl').value || "" : ""; const cl_oi_axis = document.getElementById('cl_oi_axis') ? document.getElementById('cl_oi_axis').value || "" : "";
             if(window.cart.length === 0) { alert("Agrega productos al carrito."); return; }
             
-            let total = 0;
-            let message = orderNum ? `Hola *${name}*, resumen de Orden *#${orderNum}*:\n\n` : `Hola *${name}*, resumen de consulta:\n\n`;
-            
-            if(phone || idCard) {
-                if(phone) message += `Tel: ${phone} `;
-                if(idCard) message += `| ID: ${idCard}`;
-                message += `\n\n`;
-            }
+            let total = 0; let message = orderNum ? `Hola *${name}*, resumen de Orden *#${orderNum}*:\n\n` : `Hola *${name}*, resumen de consulta:\n\n`;
+            if(phone || idCard) { if(phone) message += `Tel: ${phone} `; if(idCard) message += `| ID: ${idCard}`; message += `\n\n`; }
+            if(age && age.toString().trim() !== "") message += `Edad: ${age} años\n\n`;
+            const fmtAdd = (v) => { const n = parseFloat(v); return (isNaN(n) || n === 0) ? "" : Math.abs(n).toFixed(2); };
 
-            let rxOD =[];
-            let sphOD = window.fmtRx(rx.od.sph);
-            let cylOD = window.fmtRx(rx.od.cyl);
-            if(sphOD !== 0) rxOD.push(`${sphOD} esf`);
-            if(cylOD !== 0) rxOD.push(`${cylOD} cil x ${rx.od.axis}°`);
-            let odStr = rxOD.length > 0 ? `OD: ${rxOD.join(' ')}` : '';
-            let addOD = window.fmtRx(rx.od.add);
-            if(addOD !== 0) odStr = odStr !== '' ? `${odStr} ADD: ${addOD}` : `OD: ADD: ${addOD}`;
+            let rxOD =[]; let sphOD = window.fmtRx(rx.od.sph); let cylOD = window.fmtRx(rx.od.cyl); if(sphOD !== 0) rxOD.push(`${sphOD} esf`); if(cylOD !== 0) rxOD.push(`${cylOD} cil x ${rx.od.axis}°`); let odStr = rxOD.length > 0 ? `OD: ${rxOD.join(' ')}` : ''; const addODStr = fmtAdd(rx.od.add); if(addODStr) odStr = odStr !== '' ? `${odStr} ADD: ${addODStr}` : `OD: ADD: ${addODStr}`;
+            let rxOI =[]; let sphOI = window.fmtRx(rx.oi.sph); let cylOI = window.fmtRx(rx.oi.cyl); if(sphOI !== 0) rxOI.push(`${sphOI} esf`); if(cylOI !== 0) rxOI.push(`${cylOI} cil x ${rx.oi.axis}°`); let oiStr = rxOI.length > 0 ? `OI : ${rxOI.join(' ')}` : ''; const addOIStr = fmtAdd(rx.oi.add); if(addOIStr) oiStr = oiStr !== '' ? `${oiStr} ADD: ${addOIStr}` : `OI : ADD: ${addOIStr}`;
+            let rxOD_db = odStr.replace("OD: ", "") || "Sin Rx"; let rxOI_db = oiStr.replace("OI : ", "") || "Sin Rx";
 
-            let rxOI =[];
-            let sphOI = window.fmtRx(rx.oi.sph);
-            let cylOI = window.fmtRx(rx.oi.cyl);
-            if(sphOI !== 0) rxOI.push(`${sphOI} esf`);
-            if(cylOI !== 0) rxOI.push(`${cylOI} cil x ${rx.oi.axis}°`);
-            let oiStr = rxOI.length > 0 ? `OI : ${rxOI.join(' ')}` : '';
-            let addOI = window.fmtRx(rx.oi.add);
-            if(addOI !== 0) oiStr = oiStr !== '' ? `${oiStr} ADD: ${addOI}` : `OI : ADD: ${addOI}`;
-
-            let rxOD_db = odStr.replace("OD: ", "") || "Sin Rx";
-            let rxOI_db = oiStr.replace("OI : ", "") || "Sin Rx";
-
-            if(odStr !== '' || oiStr !== '') {
-                message += `*RECETA FINAL:*\n`;
-                if(odStr) message += `${odStr}\n`;
-                if(oiStr) message += `${oiStr}\n`;
-                message += `\n`;
-            }
-
-            let medidasTxt = "";
-            if(odDnp || odAlt || oiDnp || oiAlt) {
-                message += `*MEDIDAS (mm):*\n`;
-                if(odDnp || odAlt) message += `OD: DNP ${odDnp || '-'} / Alt ${odAlt || '-'}\n`;
-                if(oiDnp || oiAlt) message += `OI : DNP ${oiDnp || '-'} / Alt ${oiAlt || '-'}\n`;
-                message += `\n`;
-                medidasTxt = `OD: ${odDnp||'-'}/${odAlt||'-'} | OI: ${oiDnp||'-'}/${oiAlt||'-'}`;
-            } else {
-                medidasTxt = "N/A";
-            }
+            if(odStr !== '' || oiStr !== '') { message += `*RECETA FINAL:*\n`; if(odStr) message += `${odStr}\n`; if(oiStr) message += `${oiStr}\n`; message += `\n`; }
+            let medidasTxt = "N/A"; if(odDnp || odAlt || oiDnp || oiAlt) { message += `*MEDIDAS (mm):*\n`; if(odDnp || odAlt) message += `OD: DNP ${odDnp || '-'} / Alt ${odAlt || '-'}\n`; if(oiDnp || oiAlt) message += `OI : DNP ${oiDnp || '-'} / Alt ${oiAlt || '-'}\n`; message += `\n`; medidasTxt = `OD: ${odDnp||'-'}/${odAlt||'-'} | OI: ${oiDnp||'-'}/${oiAlt||'-'}`; }
+            const fmtCL = (sph, cyl, axis) => { const s = (sph || '').toString().trim(); const c = (cyl || '').toString().trim(); const a = (axis || '').toString().trim(); const sphPart = s !== '' ? window.fmtRx(s) : ''; const cylPart = c !== '' ? window.fmtRx(c) : ''; if (sphPart && !cylPart) return `${sphPart} esf`; if (sphPart && cylPart) return `${sphPart} esf ${cylPart} cyl x ${a || '-'}°`; if (!sphPart && cylPart) return `${cylPart} cyl x ${a || '-'}°`; return ''; };
+            let clParts =[]; const clODf = fmtCL(cl_od_sph, cl_od_cyl, cl_od_axis); if (clODf) clParts.push(`OD: ${clODf}`); const clOIf = fmtCL(cl_oi_sph, cl_oi_cyl, cl_oi_axis); if (clOIf) clParts.push(`OI: ${clOIf}`); if (clParts.length > 0) { message += `*LENTES DE CONTACTO:*\n`; clParts.forEach(p => { message += `${p}\n`; }); message += `\n`; }
             
             message += `*PRODUCTOS:*\n`;
             let productosArray =[];
             window.cart.forEach(item => { 
-                let p = parseFloat(item.price);
-                if(isNaN(p)) p = 0;
-                total += p;
-                message += `• *${item.name}* ($${p.toFixed(2)})\n`; 
-                if(item.desc && item.desc.trim() !== "") {
-                    message += `  ↳ _${item.desc}_\n`;
-                    productosArray.push(`${item.name} (${item.desc})`);
-                } else {
-                    productosArray.push(item.name);
-                }
+                let pObj = window.calcularPreciosItem(item); let p = (window.metodoPago === 'bs') ? pObj.etiqueta : pObj.efectivo;
+                total += p; message += `• *${item.name}* ($${p.toLocaleString('en-US', {minimumFractionDigits: 2})})\n`; 
+                if(item.desc && item.desc.trim() !== "") { message += `  ↳ _${item.desc}_\n`; productosArray.push(`${item.name} (${item.desc})`); } else { productosArray.push(item.name); }
             });
             let productosTxt = productosArray.join(" | ");
             
-            let abono = parseFloat(document.getElementById('abono-input').value) || 0;
-            let saldo = total - abono;
-
-            if (abono > 0) {
-                message += `\n*RESUMEN DE PAGO:*\n`;
-                message += `- Total Estimado: $${total.toFixed(2)}\n`;
-                message += `- Abono Inicial: $${abono.toFixed(2)}\n`;
-                message += `- *SALDO PENDIENTE: $${saldo.toFixed(2)}*\n`;
-            } else {
-                message += `\n*TOTAL A PAGAR: $${total.toFixed(2)}*\n`;
-            }
+            let abono = parseFloat(document.getElementById('abono-input').value) || 0; let saldo = total - abono;
+            if (abono > 0) { message += `\n*RESUMEN DE PAGO:*\n`; message += `- Total Estimado: $${total.toLocaleString('en-US', {minimumFractionDigits: 2})}\n`; message += `- Abono Inicial: $${abono.toLocaleString('en-US', {minimumFractionDigits: 2})}\n`; message += `- *SALDO PENDIENTE: $${saldo.toLocaleString('en-US', {minimumFractionDigits: 2})}*\n`; } else { message += `\n*TOTAL A PAGAR: $${total.toLocaleString('en-US', {minimumFractionDigits: 2})}*\n`; }
+            if (window.metodoPago === 'bs') { message += `\n_Nota: Cotización basada en pago en Bolívares (Tasa BCV)._`; } else { message += `\n_Nota: Cotización con descuento especial aplicado por pago en Divisas (Efectivo)._`; }
 
             if(URL_APPS_SCRIPT && URL_APPS_SCRIPT.includes("script.google.com")) {
-                // Force values to be treated as plain text in Google Sheets to avoid formula parse errors
                 const forceText = v => (typeof v === 'string' && v !== '') ? ("'" + v) : v;
-                let dbData = {
-                    orden: orderNum ? "'" + orderNum : "", 
-                    nombre: forceText(name),
-                    telefono: forceText(phone),
-                    id_card: forceText(idCard),
-                    rx_od: (rxOD_db && rxOD_db !== "Sin Rx") ? ("'" + rxOD_db) : rxOD_db,
-                    rx_oi: (rxOI_db && rxOI_db !== "Sin Rx") ? ("'" + rxOI_db) : rxOI_db,
-                    medidas: forceText(medidasTxt),
-                    productos: forceText(productosTxt),
-                    total: total,
-                    abono: abono,
-                    saldo: saldo
-                };
-                fetch(URL_APPS_SCRIPT, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dbData)
-                }).catch(err => console.log("Error webhook:", err));
+                let dbData = { orden: orderNum ? "'" + orderNum : "", nombre: forceText(name), edad: age || "", telefono: forceText(phone), id_card: forceText(idCard), rx_od: (rxOD_db && rxOD_db !== "Sin Rx") ? ("'" + rxOD_db) : rxOD_db, rx_oi: (rxOI_db && rxOI_db !== "Sin Rx") ? ("'" + rxOI_db) : rxOI_db, medidas: forceText(medidasTxt), contact_lenses: forceText(clParts && clParts.length > 0 ? clParts.join(' | ') : ""), productos: forceText(productosTxt), total: total, abono: abono, saldo: saldo };
+                fetch(URL_APPS_SCRIPT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dbData) }).catch(err => console.log("Error webhook:", err));
             }
             
             let finalUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
