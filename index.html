@@ -343,15 +343,11 @@
                 let marginPct = item.margen;
                 if (marginPct >= 100) marginPct = 99.9; // Protección matemática
                 
-                // Si es un cristal (lenses), asumimos que el costo es de 1 unidad y lo multiplicamos x2 para vender el Par.
-                // Si son monturas o lentes de contacto, el costo ya representa la caja/pieza entera (x1).
                 baseCost = (item.category === 'lenses') ? (item.costo * 2) : item.costo;
-                
-                // Fórmula para calcular precio de venta en base al margen deseado
                 targetPrice = baseCost / (1 - (marginPct / 100));
                 ganancia = targetPrice - baseCost;
             } else {
-                // RED DE SEGURIDAD: Si no hay costo/margen en Excel, usar la columna vieja 'price' asumiendo 60% de margen.
+                // Si usa el precio viejo de la base de datos
                 targetPrice = parseFloat(item.price) || 0;
                 baseCost = targetPrice * 0.40;
                 ganancia = targetPrice * 0.60;
@@ -366,14 +362,14 @@
                 };
             }
 
-            // 3. Aplicar Arbitraje Financiero a Cristales y Lentes de Contacto
-            // Precio Oficial BCV (Protege la ganancia inflando por la brecha cambiaria)
-            let exactEtiqueta = baseCost + (ganancia * (window.tasaTDR / window.tasaBCV));
+            // 3. LÓGICA DEFINITIVA (Protección Total 100%)
+            
+            // Precio Oficial BCV: Todo el precio se protege a tasa paralela y se divide por BCV
+            let exactEtiqueta = targetPrice * (window.tasaTDR / window.tasaBCV);
             let etiqueta = Math.ceil(exactEtiqueta / 5) * 5;
 
-            // Precio Oferta Efectivo (Baja el costo por arbitraje, la ganancia queda intacta)
-            let exactEfectivo = (baseCost * (window.tasaBCV / window.tasaTDR)) + ganancia;
-            let efectivo = Math.ceil(exactEfectivo / 5) * 5;
+            // Precio Oferta Efectivo: Es exactamente tu precio objetivo de venta
+            let efectivo = Math.ceil(targetPrice / 5) * 5;
 
             let bs = etiqueta * window.tasaBCV;
 
