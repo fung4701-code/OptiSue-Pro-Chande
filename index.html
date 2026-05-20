@@ -115,9 +115,10 @@
                         <div class="font-bold mb-1"><i class="fa-solid fa-stethoscope"></i> Análisis:</div>
                         <span id="diagnosis-text" class="block italic leading-tight"></span>
                     </div>
+                    <!-- GRADUACIÓN LENTES DE CONTACTO -->
                     <div class="mt-3 p-3 bg-white rounded-lg border border-slate-200" id="contact-lens-prescription">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-slate-600 uppercase"><i class="fa-solid fa-droplet"></i> Graduación Lentes de Contacto</span>
+                            <span class="text-xs font-bold text-slate-600 uppercase"><i class="fa-solid fa-droplet"></i> Graduación L.C.</span>
                             <span class="text-[10px] text-slate-400">Opcional</span>
                         </div>
                         <div class="grid grid-cols-6 gap-2 text-sm">
@@ -235,37 +236,47 @@
         </div>
     </main>
 
-    <!-- MODAL CONFIG -->
+    <!-- MODAL CONFIGURACIÓN CON 3 TASAS Y MODO ARBITRAJE -->
     <div id="admin-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-2xl w-[500px] p-6 animate-[fadeIn_0.2s_ease-out]">
+        <div class="bg-white rounded-lg shadow-2xl w-[550px] p-6 animate-[fadeIn_0.2s_ease-out]">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-database text-blue-600"></i> Gestión de Inventario</h2>
+                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-database text-blue-600"></i> Configuración OptiSuite</h2>
                 <button onclick="window.toggleModal(false)" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-6">
                 
-                <div class="bg-white p-4 rounded border border-slate-200">
-                    <h3 class="font-bold text-sm text-slate-800 mb-3"><i class="fa-solid fa-money-bill-transfer text-green-600"></i> Tasas Cambiarias del Día</h3>
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Tasa Oficial (BCV)</label>
-                            <input type="number" id="input-bcv" oninput="window.saveRates()" class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-sm font-bold outline-none focus:border-blue-500">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                    <h3 class="font-bold text-sm text-slate-800 mb-3"><i class="fa-solid fa-money-bill-transfer text-green-600"></i> Panel Financiero y Tasas</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-white p-2 rounded border border-slate-200 shadow-sm">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">1. Tasa Lab (Pago)</label>
+                            <input type="number" id="input-prov" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-blue-600" title="Tasa a la que te factura el laboratorio">
                         </div>
-                        <div class="flex-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Tasa Reposición (TDR)</label>
-                            <input type="number" id="input-tdr" oninput="window.saveRates()" class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-sm font-bold outline-none focus:border-blue-500">
+                        <div class="bg-white p-2 rounded border border-slate-200 shadow-sm">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">2. Tasa Repo (Calle)</label>
+                            <input type="number" id="input-repo" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-green-600" title="Tasa a la que compras dólares">
+                        </div>
+                        <div class="bg-white p-2 rounded border border-slate-200 shadow-sm border-b-2 border-b-blue-500">
+                            <label class="text-[9px] font-bold text-blue-600 uppercase block mb-1">3. Tasa Mostrador</label>
+                            <input type="number" id="input-cobro" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-blue-700 outline-none" title="Tasa BCV oficial a la que le cobras al cliente">
                         </div>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2">Los precios en mostrador se protegerán automáticamente en base al gap de estas tasas.</p>
+                    
+                    <div class="mt-4 flex items-center gap-3 bg-white p-2 rounded border border-orange-200">
+                        <input type="checkbox" id="input-arbitraje" onchange="window.saveRates()" class="w-5 h-5 accent-orange-500 cursor-pointer">
+                        <div class="text-xs text-slate-700 leading-tight">
+                            <strong>Modo Inteligente (Arbitraje)</strong><br>
+                            <span class="text-[10px] text-slate-500">Calcula precios en base al Costo Real de reposición. Apágalo para usar el costo facial normal.</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-blue-50 p-4 rounded border border-blue-100">
-                    <h3 class="font-bold text-sm text-blue-900 mb-2">Estado de Conexión</h3>
-                    <p class="text-xs text-blue-700">Conectado a Google Sheets: <strong>SÍ</strong></p>
-                    <p class="text-xs text-slate-500 mt-2">Los productos se descargan automáticamente al abrir la página.</p>
-                </div>
-                <div class="border-t pt-4">
-                    <button onclick="window.resetDB()" class="text-slate-500 hover:text-red-600 text-xs font-bold underline w-full text-center">Forzar Recarga de Datos</button>
+                <div class="bg-blue-50 p-4 rounded border border-blue-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-sm text-blue-900 mb-1">Estado de Conexión</h3>
+                        <p class="text-xs text-blue-700">Conectado a Google Sheets: <strong>SÍ</strong></p>
+                    </div>
+                    <button onclick="window.resetDB()" class="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold py-2 px-4 rounded transition">Recargar Datos</button>
                 </div>
             </div>
         </div>
@@ -279,15 +290,23 @@
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuZ4_YpXxbqtxBaLaFr7zAE3cTZQAXDG74riH7q7tLd5bxfFitT2jYSez25563KoeBGYOeMnGTuGP1/pub?output=csv";
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz8kM-HdyiJh8TU8ynHNG4pvNm3UqWahKcTu30bwKVWuch39P9MShV8fIssIedQM6APXg/exec"; 
 
-        window.tasaBCV = parseFloat(localStorage.getItem('optiTasaBCV')) || 459.45;
-        window.tasaTDR = parseFloat(localStorage.getItem('optiTasaTDR')) || 651.78;
+        // Variables de Arbitraje Financiero Dual (3 Tasas)
+        window.tasaProv = parseFloat(localStorage.getItem('optiTasaProv')) || 459.45;
+        window.tasaRepo = parseFloat(localStorage.getItem('optiTasaRepo')) || 651.78;
+        window.tasaCobro = parseFloat(localStorage.getItem('optiTasaCobro')) || 459.45;
+        window.modoInteligente = localStorage.getItem('optiModoInt') === 'false' ? false : true;
+        
         window.metodoPago = 'bs'; 
 
         document.addEventListener('DOMContentLoaded', () => {
             const logoImg = document.getElementById('main-logo');
             if(LOGO_URL && LOGO_URL.length > 5) logoImg.src = LOGO_URL;
-            document.getElementById('input-bcv').value = window.tasaBCV;
-            document.getElementById('input-tdr').value = window.tasaTDR;
+            
+            // Cargar en el UI modal
+            document.getElementById('input-prov').value = window.tasaProv;
+            document.getElementById('input-repo').value = window.tasaRepo;
+            document.getElementById('input-cobro').value = window.tasaCobro;
+            document.getElementById('input-arbitraje').checked = window.modoInteligente;
         });
 
         window.cart =[];
@@ -309,14 +328,20 @@
         ];
 
         // ============================================================
-        // FUNCIONES DE ARBITRAJE Y PRECIOS CON COSTO/MARGEN
+        // FUNCIONES DE ARBITRAJE Y PRECIOS
         // ============================================================
         
         window.saveRates = function() {
-            window.tasaBCV = parseFloat(document.getElementById('input-bcv').value) || 1;
-            window.tasaTDR = parseFloat(document.getElementById('input-tdr').value) || 1;
-            localStorage.setItem('optiTasaBCV', window.tasaBCV);
-            localStorage.setItem('optiTasaTDR', window.tasaTDR);
+            window.tasaProv = Math.max(parseFloat(document.getElementById('input-prov').value) || 1, 1);
+            window.tasaRepo = Math.max(parseFloat(document.getElementById('input-repo').value) || 1, 1);
+            window.tasaCobro = Math.max(parseFloat(document.getElementById('input-cobro').value) || 1, 1);
+            window.modoInteligente = document.getElementById('input-arbitraje').checked;
+            
+            localStorage.setItem('optiTasaProv', window.tasaProv);
+            localStorage.setItem('optiTasaRepo', window.tasaRepo);
+            localStorage.setItem('optiTasaCobro', window.tasaCobro);
+            localStorage.setItem('optiModoInt', window.modoInteligente);
+            
             window.renderGrid();
             window.renderCart();
         };
@@ -334,47 +359,53 @@
         };
 
         window.calcularPreciosItem = function(item) {
-            let baseCost = 0;
-            let ganancia = 0;
-            let targetPrice = 0;
+            let costoFacial = 0;
+            let margen = 0;
 
-            // 1. Determinar el Costo y la Ganancia Base
+            // 1. Obtener Costo y Margen (Verificando la Base de Datos)
             if (item.costo > 0 && item.margen > 0) {
-                let marginPct = item.margen;
-                if (marginPct >= 100) marginPct = 99.9; // Protección matemática
-                
-                baseCost = (item.category === 'lenses') ? (item.costo * 2) : item.costo;
-                targetPrice = baseCost / (1 - (marginPct / 100));
-                ganancia = targetPrice - baseCost;
+                costoFacial = (item.category === 'lenses') ? (item.costo * 2) : item.costo;
+                margen = item.margen >= 100 ? 99.9 : item.margen;
             } else {
-                // Si usa el precio viejo de la base de datos
-                targetPrice = parseFloat(item.price) || 0;
-                baseCost = targetPrice * 0.40;
-                ganancia = targetPrice * 0.60;
+                // Legado: Si la BD aún no tiene costo/margen en esa fila
+                let oldPrice = parseFloat(item.price) || 0;
+                costoFacial = oldPrice * 0.40; 
+                margen = 60;
             }
 
-            // 2. Si no es cristal ni lente de contacto, NO hay arbitraje. Venta plana.
+            // 2. Elementos sin Arbitraje (Servicios y Monturas)
             if (item.category !== 'lenses' && item.category !== 'contact_lenses' && item.category !== 'contacts') {
-                return { 
-                    etiqueta: targetPrice, 
-                    efectivo: targetPrice, 
-                    bs: targetPrice * window.tasaBCV 
-                };
+                let p = costoFacial / (1 - (margen/100));
+                let pRound = Math.ceil(p / 5) * 5;
+                return { etiqueta: pRound, efectivo: pRound, bs: pRound * window.tasaCobro };
             }
 
-            // 3. LÓGICA DEFINITIVA (Protección Total 100%)
+            // 3. LÓGICA DE ARBITRAJE Y FLUJO DE CAJA (La "Calculadora Definitiva")
             
-            // Precio Oficial BCV: Todo el precio se protege a tasa paralela y se divide por BCV
-            let exactEtiqueta = targetPrice * (window.tasaTDR / window.tasaBCV);
+            // a) Cuántos dólares reales de mercado me cuesta pagar la factura
+            let costoEnBs = costoFacial * window.tasaProv;
+            let costoRealUSD = costoEnBs / window.tasaRepo;
+
+            // b) Base del cálculo (Modo Inteligente vs Modo Tradicional)
+            let baseCalculo = window.modoInteligente ? costoRealUSD : costoFacial;
+            
+            // c) Precio Objetivo de Venta (Garantiza el % sobre la base de cálculo)
+            let precioVentaObjetivoUSD = baseCalculo / (1 - (margen/100));
+
+            // d) PRECIO EFECTIVO (Cobras directamente los USD objetivo redondeados a 5)
+            let efectivo = Math.ceil(precioVentaObjetivoUSD / 5) * 5;
+
+            // e) PRECIO ETIQUETA BCV (Debe generar los Bs necesarios para comprar 'efectivo' a tasa de calle)
+            // Se usa 'efectivo' (que ya está redondeado) para garantizar que el redondeo quede a tu favor, no en tu contra.
+            let objetivoTotalBs = efectivo * window.tasaRepo; 
+            let exactEtiqueta = objetivoTotalBs / window.tasaCobro;
             let etiqueta = Math.ceil(exactEtiqueta / 5) * 5;
 
-            // Precio Oferta Efectivo: Es exactamente tu precio objetivo de venta
-            let efectivo = Math.ceil(targetPrice / 5) * 5;
-
-            let bs = etiqueta * window.tasaBCV;
+            let bs = etiqueta * window.tasaCobro;
 
             return { etiqueta, efectivo, bs };
         };
+
 
         // --- CARGA DESDE LA NUBE ---
         async function loadInventoryFromCloud() {
@@ -434,12 +465,11 @@
                     try { const fileId = rawImage.match(/\/d\/(.+?)\//)[1]; rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId; } catch(e){}
                 }
 
-                // NUEVA LECTURA DE COLUMNAS (K=10: Costo, L=11: Margen)
                 const item = {
                     id: clean[0],
                     category: category,
                     name: clean[2],
-                    price: parseFloat(clean[3]) || 0, // Fallback de seguridad
+                    price: parseFloat(clean[3]) || 0,
                     brand: clean[4] || '',
                     type: (clean[5] || '').toLowerCase(),
                     desc: clean[6] || '',
@@ -675,10 +705,11 @@
             });
         };
 
-        // --- SISTEMA DE RX Y WHATSAPP ---
+        // --- SISTEMA DE RX Y COMPATIBILIDAD CORREGIDO ---
         window.getRxData = function() { return { od: { sph: parseFloat(document.getElementById('odSphere').value)||0, cyl: parseFloat(document.getElementById('odCyl').value)||0, axis: parseFloat(document.getElementById('odAxis').value)||0, add: parseFloat(document.getElementById('odAdd').value)||0 }, oi: { sph: parseFloat(document.getElementById('oiSphere').value)||0, cyl: parseFloat(document.getElementById('oiCyl').value)||0, axis: parseFloat(document.getElementById('oiAxis').value)||0, add: parseFloat(document.getElementById('oiAdd').value)||0 } }; };
+        
         window.updateRecommendations = function() { const rx = window.getRxData(); const diagBox = document.getElementById('rx-diagnosis'); const diagText = document.getElementById('diagnosis-text'); let text =[]; if(Math.abs(rx.od.sph)>=4 || Math.abs(rx.oi.sph)>=4) text.push("Alto Índice"); if(Math.abs(rx.od.cyl)>=0.75 || Math.abs(rx.oi.cyl)>=0.75) text.push("Astigmatismo"); if(rx.od.add>0 || rx.oi.add>0) text.push("Presbicia"); if(text.length===0) { if(diagBox) diagBox.classList.add('hidden'); } else { if(diagBox) diagBox.classList.remove('hidden'); if(diagText) diagText.innerText = text.join(" + "); } window.renderGrid(); };
-        // --- FUNCIÓN DE COMPATIBILIDAD CLÍNICA CORREGIDA ---
+        
         window.canMakeLens = function(item, rx) {
             if(!item) return true;
             const odSph = Math.abs(parseFloat(rx.od.sph) || 0); const oiSph = Math.abs(parseFloat(rx.oi.sph) || 0);
@@ -689,32 +720,20 @@
             const tagsText = (Array.isArray(item.tags) ? item.tags.join(' ') : '');
             const text = (item.name + ' ' + (item.desc||'') + ' ' + (item.type||'') + ' ' + (item.brand||'') + ' ' + (item.gender||'') + ' ' + tagsText).toLowerCase();
 
-            // REGLAS ESTRICTAS SOLO PARA LENTES DE CONTACTO
             if (item.category === 'contacts' || item.category === 'contact_lenses') {
-                // Astigmatismo en L.C. requiere diseño Tórico
-                if(maxCyl >= 0.75) { 
-                    if(!(text.includes('toric') || text.includes('tórico') || text.includes('torico'))) return false; 
-                }
-                // Presbicia en L.C. requiere diseño Multifocal
-                if(add > 0) { 
-                    if(!(text.includes('multi') || text.includes('multifocal'))) return false; 
-                }
+                if(maxCyl >= 0.75) { if(!(text.includes('toric') || text.includes('tórico') || text.includes('torico'))) return false; }
+                if(add > 0) { if(!(text.includes('multi') || text.includes('multifocal'))) return false; }
                 return true;
             }
 
-            // REGLAS INTELIGENTES PARA CRISTALES OFTÁLMICOS
             if (item.category === 'lenses') {
-                // Si el paciente tiene Presbicia (ADD) y estás en la pestaña "Todos",
-                // el sistema oculta los monofocales para no estorbar y te muestra solo los progresivos/bifocales.
-                // (Si haces clic manual en el botón "Monofocal", sí te los mostrará por si quieres hacerle unos lentes de solo lectura).
                 if(add > 0 && window.activeL1 === 'all') { 
                     if(!(text.includes('progress') || text.includes('multifocal') || text.includes('progres') || text.includes('varilux') || text.includes('bifocal') || text.includes('ocupacional') || text.includes('office'))) return false; 
                 }
-                // Se eliminó el bloqueo de cilindro. El laboratorio talla la receta a medida.
             }
-
             return true;
         };
+
         window.calcTotalDP = function() { const od = parseFloat(document.getElementById('odDnp').value)||0; const oi = parseFloat(document.getElementById('oiDnp').value)||0; const disp = document.getElementById('total-dp-display'); if(disp) disp.innerText = (od>0&&oi>0) ? 'DP Total: ' + (od+oi).toFixed(1) + ' mm' : 'DP Total: --'; };
 
         window.updateBalance = function() {
@@ -779,7 +798,8 @@
             
             let abono = parseFloat(document.getElementById('abono-input').value) || 0; let saldo = total - abono;
             if (abono > 0) { message += `\n*RESUMEN DE PAGO:*\n`; message += `- Total Estimado: $${total.toLocaleString('en-US', {minimumFractionDigits: 2})}\n`; message += `- Abono Inicial: $${abono.toLocaleString('en-US', {minimumFractionDigits: 2})}\n`; message += `- *SALDO PENDIENTE: $${saldo.toLocaleString('en-US', {minimumFractionDigits: 2})}*\n`; } else { message += `\n*TOTAL A PAGAR: $${total.toLocaleString('en-US', {minimumFractionDigits: 2})}*\n`; }
-            if (window.metodoPago === 'bs') { message += `\n_Nota: Cotización basada en pago en Bolívares (Tasa BCV)._`; } else { message += `\n_Nota: Cotización con descuento especial aplicado por pago en Divisas (Efectivo)._`; }
+
+            if (window.metodoPago === 'bs') { message += `\n_Nota: Cotización basada en pago en Bolívares (Tasa Oficial/Mostrador)._`; } else { message += `\n_Nota: Cotización con descuento especial aplicado por pago en Divisas (Efectivo)._`; }
 
             if(URL_APPS_SCRIPT && URL_APPS_SCRIPT.includes("script.google.com")) {
                 const forceText = v => (typeof v === 'string' && v !== '') ? ("'" + v) : v;
