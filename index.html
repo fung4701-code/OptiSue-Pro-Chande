@@ -15,12 +15,12 @@
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); border-color: #93c5fd; }
         .rec-badge { display: none; }
         .recommended .rec-badge { display: inline-flex; }
-        .recommended { ring: 2px solid #3b82f6; background-color: #f0f9ff; }
+        .recommended { border: 2px solid #3b82f6; background-color: #f0f9ff; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { opacity: 1; }
         .rx-input { text-align: center; font-weight: 600; padding: 4px 2px; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%; font-size: 13px; }
-        .rx-input:focus { outline: none; border-color: #3b82f6; ring: 2px; background-color: #eff6ff; }
+        .rx-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); background-color: #eff6ff; }
         .rx-header { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; }
         .gen-input { width: 100%; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; transition: border 0.2s; }
         .gen-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
@@ -35,9 +35,10 @@
         .sub-chip.inactive { background-color: transparent; color: #94a3b8; border-color: transparent; }
         .sub-chip.inactive:hover { background-color: #f8fafc; color: #64748b; }
 
-        .tool-btn { @apply flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border; }
-        .tool-btn-active { @apply bg-blue-100 text-blue-700 border-blue-200; }
-        .tool-btn-inactive { @apply bg-white text-slate-500 border-slate-200 hover:bg-slate-50; }
+        .tool-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; border: 1px solid #e2e8f0; }
+        .tool-btn-active { background-color: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+        .tool-btn-inactive { background-color: white; color: #64748b; border-color: #e2e8f0; }
+        .tool-btn-inactive:hover { background-color: #f8fafc; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -192,6 +193,9 @@
                 <span class="text-xs font-bold text-blue-600 uppercase">Saldo Pendiente</span>
                 <span class="text-2xl font-black text-blue-700" id="cart-saldo">$0.00</span>
             </div>
+            <button onclick="window.generateBudgetModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-lg flex justify-center gap-2 items-center mb-2">
+                <i class="fa-solid fa-file-invoice-dollar text-base"></i> Presupuesto
+            </button>
             <button onclick="window.sendWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold text-sm transition shadow-lg flex justify-center gap-2 items-center">
                 <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Receta / Orden
             </button>
@@ -282,12 +286,90 @@
         </div>
     </div>
 
+    <div id="budget-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/50">
+        <div class="bg-white rounded-xl shadow-2xl w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+            <div class="border-b border-slate-200 px-6 py-4 bg-slate-50">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <img id="budget-logo" src="" alt="Logo" class="w-16 h-16 object-contain rounded-lg bg-white p-1 border border-slate-200">
+                        <div>
+                            <div class="text-lg font-black text-slate-800">Lic. Alexander de J. Fung R.</div>
+                            <div class="text-[11px] text-slate-600 font-semibold">Optometrista - Contactólogo</div>
+                            <div class="text-[10px] text-slate-500">N° COV: 115 | M.P.P.S: 63</div>
+                            <div class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-phone text-[9px]"></i> (58) 412-9442918  <i class="fa-solid fa-at ml-2 text-[9px]"></i> @Optmalexfung</div>
+                        </div>
+                    </div>
+                    <div class="text-right text-[11px] text-slate-600 leading-5">
+                        <div class="text-xs font-black uppercase tracking-[0.2em] text-blue-700">Presupuesto</div>
+                        <div id="budget-date">Fecha: --</div>
+                        <div>Orden: <span id="budget-order">--</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-5">
+                <div class="grid grid-cols-2 gap-4 text-[11px] text-slate-600 mb-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <div class="font-black uppercase text-slate-700 mb-1">Paciente</div>
+                        <div id="budget-patient">Nombre: --</div>
+                        <div id="budget-phone">Tel: --</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-right">
+                        <div class="font-black uppercase text-slate-700 mb-1">Resumen</div>
+                        <div>Modo de pago: <span id="budget-method">Bs</span></div>
+                        <div>Artículos: <span id="budget-items-count">0</span></div>
+                    </div>
+                </div>
+
+                <div class="overflow-hidden border border-slate-200 rounded-lg">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-slate-100 text-slate-700">
+                            <tr>
+                                <th class="py-2 px-3 font-bold uppercase">Producto</th>
+                                <th class="py-2 px-3 font-bold uppercase text-center">Cant.</th>
+                                <th class="py-2 px-3 font-bold uppercase text-right">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budget-table-body" class="bg-white"></tbody>
+                    </table>
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                    <div class="w-[260px] rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-2">
+                            <span>Subtotal</span>
+                            <span id="budget-subtotal">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-2">
+                            <span>Abono</span>
+                            <span id="budget-abono">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-base font-black text-slate-800 border-t border-slate-200 pt-2">
+                            <span>Total</span>
+                            <span id="budget-total">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 px-6 py-4 bg-slate-50 flex justify-end gap-3">
+                <button onclick="window.closeBudgetModal()" class="px-4 py-2 text-sm font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100">
+                    Cerrar
+                </button>
+                <button onclick="window.sendBudgetWhatsApp()" class="px-4 py-2 text-sm font-bold rounded-lg bg-green-600 text-white hover:bg-green-700 shadow-sm">
+                    <i class="fa-brands fa-whatsapp mr-2"></i>Enviar por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================================
         // CONFIGURACIONES PRINCIPALES Y VARIABLES GLOBALES
         // ============================================================
         const LOGO_URL = "https://i.imgur.com/OExRqNM.png";
-        const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuZ4_YpXxbqtxBaLaFr7zAE3cTZQAXDG74riH7q7tLd5bxfFitT2jYSez25563KoeBGYOeMnGTuGP1/pub?output=csv";
+        const GOOGLE_SHEET_ID = "1G6H-gLotQ1Yr7VJ67HgkDKmXKsSbUwmY5gcfcBU8ej8";
+        const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=0`;
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz8kM-HdyiJh8TU8ynHNG4pvNm3UqWahKcTu30bwKVWuch39P9MShV8fIssIedQM6APXg/exec"; 
 
         // Variables de Arbitraje Financiero Dual (3 Tasas)
@@ -315,7 +397,32 @@
         window.activeL2 = 'all';
         window.sortOrder = 'default'; 
 
-        let db = { services: [], frames: [], lenses:[], contacts:[] };
+        function getDefaultDatabase() {
+            return {
+                services: [
+                    { id: 'svc-1', category: 'services', name: 'Consulta General', price: 45, brand: 'Clínica', type: 'consulta', desc: 'Examen inicial y evaluación visual', gender: '', image: '', costo: 18, margen: 60, icon: 'fa-user-doctor' },
+                    { id: 'svc-2', category: 'services', name: 'Control de Lentes', price: 25, brand: 'Servicio', type: 'control', desc: 'Ajuste y revisión de monturas', gender: '', image: '', costo: 10, margen: 60, icon: 'fa-user-doctor' },
+                    { id: 'svc-3', category: 'services', name: 'Consulta Contactología', price: 60, brand: 'Clínica', type: 'contactologia', desc: 'Evaluación y adaptación de lentes de contacto', gender: '', image: '', costo: 24, margen: 60, icon: 'fa-user-doctor' }
+                ],
+                frames: [
+                    { id: 'frm-1', category: 'frames', name: 'Montura Clara', price: 110, brand: 'Acrylic', type: 'oftalmica', desc: 'Montura ligera para uso diario', gender: 'dama', image: '', costo: 44, margen: 60, icon: 'fa-glasses' },
+                    { id: 'frm-2', category: 'frames', name: 'Montura Elite', price: 150, brand: 'Premium', type: 'sol', desc: 'Montura solar con protección UV', gender: 'caballero', image: '', costo: 60, margen: 60, icon: 'fa-glasses' },
+                    { id: 'frm-3', category: 'frames', name: 'Montura Kids', price: 90, brand: 'Junior', type: 'oftalmica', desc: 'Montura flexible para niño', gender: 'nino', image: '', costo: 36, margen: 60, icon: 'fa-glasses' }
+                ],
+                lenses: [
+                    { id: 'len-1', category: 'lenses', name: 'Crizal Blue', price: 180, brand: 'Essilor', type: 'multifocal', desc: 'Lente antirreflejo con protección azul', gender: '', image: '', costo: 72, margen: 60, icon: 'fa-layer-group' },
+                    { id: 'len-2', category: 'lenses', name: 'Monofocal 1.56', price: 120, brand: 'Varilux', type: 'monofocal', desc: 'Lente monofocal base 1.56', gender: '', image: '', costo: 48, margen: 60, icon: 'fa-layer-group' },
+                    { id: 'len-3', category: 'lenses', name: 'Progresivo Office', price: 220, brand: 'Varilux', type: 'progresivo', desc: 'Lente progresivo para oficina', gender: '', image: '', costo: 88, margen: 60, icon: 'fa-layer-group' }
+                ],
+                contacts: [
+                    { id: 'con-1', category: 'contacts', name: 'Acuvue 1-Day', price: 65, brand: 'Johnson', type: 'sph', desc: 'Lentes diarias esféricas', gender: '', image: '', costo: 26, margen: 60, icon: 'fa-droplet' },
+                    { id: 'con-2', category: 'contacts', name: 'Biofinity Toric', price: 110, brand: 'Cooper', type: 'toric', desc: 'Lentes tóricas para astigmatismo', gender: '', image: '', costo: 44, margen: 60, icon: 'fa-droplet' },
+                    { id: 'con-3', category: 'contacts', name: 'Air Optix Multifocal', price: 140, brand: 'Alcon', type: 'multi', desc: 'Multifocal para presbicia', gender: '', image: '', costo: 56, margen: 60, icon: 'fa-droplet' }
+                ]
+            };
+        }
+
+        let db = getDefaultDatabase();
 
         const configL1 = {
             frames:[ {id: 'oftalmica', label: 'Oftálmicas'}, {id: 'sol', label: 'De Sol'}, {id: 'nuevas', label: '🔥 Nuevas'} ],
@@ -326,6 +433,21 @@
         const configL2_Frames =[
             {id: 'dama', label: 'Dama'}, {id: 'caballero', label: 'Caballero'}, {id: 'nino', label: 'Niños'}
         ];
+
+        function normalizeText(value = '') {
+            return String(value)
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9\s]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function textMatchesAny(sourceText, keywords = []) {
+            const normalizedText = normalizeText(sourceText);
+            return keywords.some(keyword => normalizedText.includes(normalizeText(keyword)));
+        }
 
         // ============================================================
         // FUNCIONES DE ARBITRAJE Y PRECIOS
@@ -359,78 +481,94 @@
         };
 
         window.calcularPreciosItem = function(item) {
-            let costoFacial = 0;
-            let margen = 0;
+            if (!item) return { etiqueta: 0, efectivo: 0, bs: 0 };
 
-            // 1. Obtener Costo y Margen (Verificando la Base de Datos)
-            if (item.costo > 0 && item.margen > 0) {
-                costoFacial = (item.category === 'lenses') ? (item.costo * 2) : item.costo;
-                margen = item.margen >= 100 ? 99.9 : item.margen;
-            } else {
-                // Legado: Si la BD aún no tiene costo/margen en esa fila
-                let oldPrice = parseFloat(item.price) || 0;
-                costoFacial = oldPrice * 0.40; 
-                margen = 60;
-            }
+            const costoBase = Number(item.costo) > 0 ? Number(item.costo) : (Number(item.price) || 0) * 0.4;
+            const margenBase = Number(item.margen) > 0 ? Math.min(Number(item.margen), 99.9) : 60;
+            const costoFacial = item.category === 'lenses' ? costoBase * 2 : costoBase;
 
-            // 2. Elementos sin Arbitraje (Servicios y Monturas)
             if (item.category !== 'lenses' && item.category !== 'contact_lenses' && item.category !== 'contacts') {
-                let p = costoFacial / (1 - (margen/100));
-                let pRound = Math.ceil(p / 5) * 5;
-                return { etiqueta: pRound, efectivo: pRound, bs: pRound * window.tasaCobro };
+                const precioFinal = costoFacial / (1 - (margenBase / 100));
+                const etiqueta = Math.ceil(precioFinal / 5) * 5;
+                return { etiqueta, efectivo: etiqueta, bs: etiqueta * window.tasaCobro };
             }
 
-            // 3. LÓGICA DE ARBITRAJE Y FLUJO DE CAJA (La "Calculadora Definitiva")
-            
-            // a) Cuántos dólares reales de mercado me cuesta pagar la factura
-            let costoEnBs = costoFacial * window.tasaProv;
-            let costoRealUSD = costoEnBs / window.tasaRepo;
+            const costoEnBs = costoFacial * window.tasaProv;
+            const costoRealUSD = costoEnBs / Math.max(window.tasaRepo, 1);
+            const baseCalculo = window.modoInteligente ? costoRealUSD : costoFacial;
+            const precioVentaObjetivoUSD = baseCalculo / (1 - (margenBase / 100));
+            const efectivo = Math.ceil(precioVentaObjetivoUSD / 5) * 5;
+            const objetivoTotalBs = efectivo * window.tasaRepo;
+            const exactEtiqueta = objetivoTotalBs / Math.max(window.tasaCobro, 1);
+            const etiqueta = Math.ceil(exactEtiqueta / 5) * 5;
 
-            // b) Base del cálculo (Modo Inteligente vs Modo Tradicional)
-            let baseCalculo = window.modoInteligente ? costoRealUSD : costoFacial;
-            
-            // c) Precio Objetivo de Venta (Garantiza el % sobre la base de cálculo)
-            let precioVentaObjetivoUSD = baseCalculo / (1 - (margen/100));
-
-            // d) PRECIO EFECTIVO (Cobras directamente los USD objetivo redondeados a 5)
-            let efectivo = Math.ceil(precioVentaObjetivoUSD / 5) * 5;
-
-            // e) PRECIO ETIQUETA BCV (Debe generar los Bs necesarios para comprar 'efectivo' a tasa de calle)
-            // Se usa 'efectivo' (que ya está redondeado) para garantizar que el redondeo quede a tu favor, no en tu contra.
-            let objetivoTotalBs = efectivo * window.tasaRepo; 
-            let exactEtiqueta = objetivoTotalBs / window.tasaCobro;
-            let etiqueta = Math.ceil(exactEtiqueta / 5) * 5;
-
-            let bs = etiqueta * window.tasaCobro;
-
-            return { etiqueta, efectivo, bs };
+            return {
+                etiqueta,
+                efectivo,
+                bs: etiqueta * window.tasaCobro
+            };
         };
 
 
         // --- CARGA DESDE LA NUBE ---
+        function getGoogleSheetCandidates() {
+            const baseId = GOOGLE_SHEET_ID || "";
+            const fallback = [
+                `https://docs.google.com/spreadsheets/d/${baseId}/export?format=csv&gid=0`,
+                `https://docs.google.com/spreadsheets/d/${baseId}/gviz/tq?tqx=out:csv&sheet=Sheet1`,
+                `https://docs.google.com/spreadsheets/d/${baseId}/pub?output=csv`,
+                `https://docs.google.com/spreadsheets/d/${baseId}/pub?gid=0&single=true&output=csv`
+            ].filter(Boolean);
+
+            return [...new Set(fallback)];
+        }
+
+        function isFileOriginBlocked() {
+            return window.location.protocol === 'file:';
+        }
+
         async function loadInventoryFromCloud() {
-            if(!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.length < 10) { loadLocalOrDefaults(); return; }
-            const antiCacheURL = GOOGLE_SHEET_URL + "&t=" + new Date().getTime();
-            try {
-                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(antiCacheURL);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("Error HTTP");
-                const data = await response.text();
-                if(!data || data.includes("<!DOCTYPE html>")) throw new Error("Inválido");
-                parseCSV(data);
-                window.renderGrid(); 
-            } catch (error) {
+            const candidates = getGoogleSheetCandidates();
+
+            if (isFileOriginBlocked()) {
+                console.warn('Google Sheets está bloqueado desde file:// por CORS. Abre la app desde un servidor local.');
+                const title = document.getElementById('page-title');
+                const subtitle = document.getElementById('page-subtitle');
+                if (title) title.textContent = 'Archivo local bloqueado';
+                if (subtitle) subtitle.textContent = 'Abre en http://localhost:8000';
+                return;
+            }
+
+            if (!candidates.length) {
+                loadLocalOrDefaults();
+                return;
+            }
+
+            for (const url of candidates) {
                 try {
-                    const fallbackUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(antiCacheURL);
-                    const res2 = await fetch(fallbackUrl);
-                    if(!res2.ok) throw new Error("Fallo");
-                    const data2 = await res2.text();
-                    parseCSV(data2);
+                    const response = await fetch(url, {
+                        cache: 'no-store',
+                        mode: 'cors',
+                        headers: { 'Accept': 'text/csv,text/plain,*/*' }
+                    });
+
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                    const data = await response.text();
+                    if (!data || data.includes('<!DOCTYPE html>') || data.trim().length < 20) {
+                        throw new Error('CSV inválido');
+                    }
+
+                    parseCSV(data);
                     window.renderGrid();
-                } catch (err2) {
-                    loadLocalOrDefaults();
+                    return;
+                } catch (error) {
+                    console.warn('Google Sheets no respondió con esta URL, probando siguiente fallback:', url, error);
                 }
             }
+
+            console.warn('No se pudo cargar la hoja de Google Sheets; usando datos locales.');
+            loadLocalOrDefaults();
         }
 
         function loadLocalOrDefaults() {
@@ -438,57 +576,126 @@
             if(local) {
                 try { db = JSON.parse(local); window.renderGrid(); return; } catch(e) { console.warn('Error', e); }
             }
-            db = { services:[], frames: [], lenses: [], contacts:[] };
+            db = getDefaultDatabase();
+            localStorage.setItem('optiSuiteDB', JSON.stringify(db));
             window.renderGrid();
         }
 
         function parseCSV(csvText) {
-            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
-            db = { services: [], frames:[], lenses:[], contacts:[] };
+            const rows = csvText
+                .split(/\r?\n/)
+                .map(row => row.trim())
+                .filter(row => row.length > 0);
+
+            if (rows.length === 0) {
+                db = { services: [], frames: [], lenses: [], contacts: [] };
+                localStorage.setItem('optiSuiteDB', JSON.stringify(db));
+                return;
+            }
+
+            const parseCsvRow = (line) => {
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (ch === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += ch;
+                    }
+                }
+
+                values.push(current.trim());
+                return values.map(value => value.replace(/^\"|\"$/g, '').trim());
+            };
+
+            const normalizeHeader = (value = '') => String(value)
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]/g, '')
+                .trim();
+
+            const getValue = (obj, keys) => {
+                for (const key of keys) {
+                    if (obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== '') {
+                        return obj[key];
+                    }
+                }
+                return '';
+            };
+
+            const normalizeCategory = (rawValue = '') => {
+                const value = String(rawValue).toLowerCase();
+                if (!value) return '';
+                if (value.includes('montura') || value.includes('frame') || value.includes('marco')) return 'frames';
+                if (value.includes('cristal') || value.includes('lente') || value.includes('lenses') || value.includes('lens')) return 'lenses';
+                if (value.includes('contact') || value.includes('contacto')) return 'contacts';
+                if (value.includes('serv')) return 'services';
+                return value;
+            };
+
+            const headerRow = parseCsvRow(rows[0]);
+            const normalizedHeader = headerRow.map(normalizeHeader);
+            db = { services: [], frames: [], lenses: [], contacts: [] };
 
             for (let i = 1; i < rows.length; i++) {
-                const values = rows[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/);
-                const clean = values.map(val => val.replace(/^\"|\"$/g, '').trim());
-                if(clean.length < 3) continue;
+                const clean = parseCsvRow(rows[i]);
+                if (clean.length < 3) continue;
 
-                let catRaw = clean[1] ? clean[1].toLowerCase() : '';
-                let category = catRaw;
-                if(catRaw.includes('montura') || catRaw.includes('frame')) category = 'frames';
-                else if(catRaw.includes('cristal') || catRaw.includes('lente') || catRaw.includes('lenses')) category = 'lenses';
-                else if(catRaw.includes('contact')) category = 'contacts';
-                else if(catRaw.includes('serv')) category = 'services';
+                const record = {};
+                normalizedHeader.forEach((header, index) => {
+                    record[header] = clean[index] || '';
+                });
 
+                const category = normalizeCategory(getValue(record, ['category', 'categoria', 'typecategory', 'tipo'])) || normalizeCategory(clean[1] || '');
                 if (!db[category]) continue;
 
-                let rawImage = clean[8] || ''; 
-                if(rawImage.includes('drive.google.com') && rawImage.includes('/view')) {
-                    try { const fileId = rawImage.match(/\/d\/(.+?)\//)[1]; rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId; } catch(e){}
+                let rawImage = getValue(record, ['image', 'imagen', 'foto', 'img']) || clean[8] || '';
+                if (typeof rawImage === 'string' && rawImage.includes('drive.google.com') && rawImage.includes('/view')) {
+                    try {
+                        const fileId = rawImage.match(/\/d\/([^/]+)/)?.[1];
+                        if (fileId) rawImage = 'https://drive.google.com/uc?export=view&id=' + fileId;
+                    } catch (e) {}
                 }
 
                 const item = {
-                    id: clean[0],
-                    category: category,
-                    name: clean[2],
-                    price: parseFloat(clean[3]) || 0,
-                    brand: clean[4] || '',
-                    type: (clean[5] || '').toLowerCase(),
-                    desc: clean[6] || '',
-                    gender: (clean[7] || '').toLowerCase(), 
+                    id: String(getValue(record, ['id', 'sku', 'codigo']) || clean[0] || '').trim(),
+                    category,
+                    name: String(getValue(record, ['name', 'nombre', 'producto']) || clean[2] || '').trim(),
+                    price: parseFloat(String(getValue(record, ['price', 'precio', 'valor']) || clean[3] || '0').replace(/[$\s]/g, '')) || 0,
+                    brand: String(getValue(record, ['brand', 'marca']) || clean[4] || '').trim(),
+                    type: String(getValue(record, ['type', 'tipo']) || clean[5] || '').trim().toLowerCase(),
+                    desc: String(getValue(record, ['desc', 'descripcion', 'detalle']) || clean[6] || '').trim(),
+                    gender: String(getValue(record, ['gender', 'genero', 'sexo']) || clean[7] || '').trim().toLowerCase(),
                     image: rawImage,
-                    fecha: clean[9] || '',
-                    costo: parseFloat(clean[10]) || 0,
-                    margen: parseFloat(clean[11]) || 0
+                    fecha: String(getValue(record, ['date', 'fecha', 'created']) || clean[9] || '').trim(),
+                    costo: parseFloat(String(getValue(record, ['cost', 'costo', 'costounit']) || clean[10] || '0').replace(/[$\s]/g, '')) || 0,
+                    margen: parseFloat(String(getValue(record, ['margin', 'margen']) || clean[11] || '0').replace(/[$\s]/g, '')) || 0
                 };
 
-                if(!item.image) {
-                    if(category === 'frames') item.icon = 'fa-glasses';
-                    else if(category === 'lenses') item.icon = 'fa-layer-group';
-                    else if(category === 'contacts') item.icon = 'fa-droplet';
+                if (!item.name || !item.id) continue;
+
+                if (!item.image) {
+                    if (category === 'frames') item.icon = 'fa-glasses';
+                    else if (category === 'lenses') item.icon = 'fa-layer-group';
+                    else if (category === 'contacts') item.icon = 'fa-droplet';
                     else item.icon = 'fa-user-doctor';
                 }
 
                 db[category].push(item);
             }
+
             localStorage.setItem('optiSuiteDB', JSON.stringify(db));
         }
 
@@ -711,25 +918,29 @@
         window.updateRecommendations = function() { const rx = window.getRxData(); const diagBox = document.getElementById('rx-diagnosis'); const diagText = document.getElementById('diagnosis-text'); let text =[]; if(Math.abs(rx.od.sph)>=4 || Math.abs(rx.oi.sph)>=4) text.push("Alto Índice"); if(Math.abs(rx.od.cyl)>=0.75 || Math.abs(rx.oi.cyl)>=0.75) text.push("Astigmatismo"); if(rx.od.add>0 || rx.oi.add>0) text.push("Presbicia"); if(text.length===0) { if(diagBox) diagBox.classList.add('hidden'); } else { if(diagBox) diagBox.classList.remove('hidden'); if(diagText) diagText.innerText = text.join(" + "); } window.renderGrid(); };
         
         window.canMakeLens = function(item, rx) {
-            if(!item) return true;
-            const odSph = Math.abs(parseFloat(rx.od.sph) || 0); const oiSph = Math.abs(parseFloat(rx.oi.sph) || 0);
-            const maxSph = Math.max(odSph, oiSph);
-            const odCyl = Math.abs(parseFloat(rx.od.cyl) || 0); const oiCyl = Math.abs(parseFloat(rx.oi.cyl) || 0);
+            if (!item) return true;
+
+            const odSph = Math.abs(parseFloat(rx.od.sph) || 0);
+            const oiSph = Math.abs(parseFloat(rx.oi.sph) || 0);
+            const odCyl = Math.abs(parseFloat(rx.od.cyl) || 0);
+            const oiCyl = Math.abs(parseFloat(rx.oi.cyl) || 0);
             const maxCyl = Math.max(odCyl, oiCyl);
-            const add = Math.max(parseFloat(rx.od.add)||0, parseFloat(rx.oi.add)||0);
-            const tagsText = (Array.isArray(item.tags) ? item.tags.join(' ') : '');
-            const text = (item.name + ' ' + (item.desc||'') + ' ' + (item.type||'') + ' ' + (item.brand||'') + ' ' + (item.gender||'') + ' ' + tagsText).toLowerCase();
+            const add = Math.max(parseFloat(rx.od.add) || 0, parseFloat(rx.oi.add) || 0);
+            const text = [item.name, item.desc, item.type, item.brand, item.gender, Array.isArray(item.tags) ? item.tags.join(' ') : ''].join(' ');
+
+            const hasToric = textMatchesAny(text, ['toric', 'torico', 'torico', 'tórico']);
+            const hasMultifocal = textMatchesAny(text, ['multifocal', 'multifocales', 'progressive', 'progresivo', 'progres', 'varilux', 'bifocal', 'ocupacional', 'office', 'multi']);
+            const hasSpherical = textMatchesAny(text, ['sph', 'esferico', 'esférico', 'spherical', 'monofocal', 'mono']);
 
             if (item.category === 'contacts' || item.category === 'contact_lenses') {
-                if(maxCyl >= 0.75) { if(!(text.includes('toric') || text.includes('tórico') || text.includes('torico'))) return false; }
-                if(add > 0) { if(!(text.includes('multi') || text.includes('multifocal'))) return false; }
+                if (maxCyl >= 0.75 && !hasToric) return false;
+                if (add > 0 && !hasMultifocal) return false;
+                if (add === 0 && !hasSpherical && !hasToric && !hasMultifocal) return false;
                 return true;
             }
 
             if (item.category === 'lenses') {
-                if(add > 0 && window.activeL1 === 'all') { 
-                    if(!(text.includes('progress') || text.includes('multifocal') || text.includes('progres') || text.includes('varilux') || text.includes('bifocal') || text.includes('ocupacional') || text.includes('office'))) return false; 
-                }
+                if (add > 0 && window.activeL1 === 'all' && !hasMultifocal) return false;
             }
             return true;
         };
@@ -767,6 +978,110 @@
         };
 
         window.fmtRx = function(value) { let num = parseFloat(value); if (isNaN(num) || num === 0) return 0; let formatted = Math.abs(num).toFixed(2); return (num > 0 ? "+" : "-") + formatted; };
+
+        window.generateBudgetModal = function() {
+            if (!window.cart || window.cart.length === 0) {
+                alert('Agrega productos al carrito antes de generar un presupuesto.');
+                return;
+            }
+
+            const modal = document.getElementById('budget-modal');
+            const tableBody = document.getElementById('budget-table-body');
+            const subtotalEl = document.getElementById('budget-subtotal');
+            const totalEl = document.getElementById('budget-total');
+            const abonoEl = document.getElementById('budget-abono');
+            const methodEl = document.getElementById('budget-method');
+            const patientEl = document.getElementById('budget-patient');
+            const phoneEl = document.getElementById('budget-phone');
+            const countEl = document.getElementById('budget-items-count');
+            const orderEl = document.getElementById('budget-order');
+            const dateEl = document.getElementById('budget-date');
+            const logoEl = document.getElementById('budget-logo');
+            if (logoEl) logoEl.src = LOGO_URL;
+
+            const patientName = (document.getElementById('patient-name')?.value || 'Paciente').trim() || 'Paciente';
+            const phone = (document.getElementById('patient-phone')?.value || '').trim();
+            const order = (document.getElementById('patient-ot')?.value || '').trim() || 'Sin OT';
+            const abono = parseFloat(document.getElementById('abono-input')?.value || '0') || 0;
+            const method = window.metodoPago === 'bs' ? 'Bs' : 'Divisas';
+            const date = new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            let subtotal = 0;
+            tableBody.innerHTML = window.cart.map(item => {
+                const p = window.calcularPreciosItem(item);
+                const price = window.metodoPago === 'bs' ? p.etiqueta : p.efectivo;
+                subtotal += price;
+                return `
+                    <tr class="border-t border-slate-200">
+                        <td class="py-2 px-3">
+                            <div class="font-bold text-slate-700">${item.name || 'Producto'}</div>
+                            <div class="text-[10px] text-slate-500">${item.brand || ''} ${item.desc ? '• ' + item.desc : ''}</div>
+                        </td>
+                        <td class="py-2 px-3 text-center">1</td>
+                        <td class="py-2 px-3 text-right font-bold text-slate-800">$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const total = subtotal - abono;
+            patientEl.textContent = 'Nombre: ' + patientName;
+            phoneEl.textContent = 'Tel: ' + (phone || 'No registrado');
+            dateEl.textContent = 'Fecha: ' + date;
+            orderEl.textContent = order;
+            countEl.textContent = String(window.cart.length);
+            methodEl.textContent = method;
+            subtotalEl.textContent = '$' + subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            abonoEl.textContent = '$' + abono.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            totalEl.textContent = '$' + Math.max(total, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            modal.classList.remove('hidden');
+        };
+
+        window.closeBudgetModal = function() {
+            const modal = document.getElementById('budget-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.sendBudgetWhatsApp = function() {
+            if (!window.cart || window.cart.length === 0) {
+                alert('No hay productos en el presupuesto.');
+                return;
+            }
+
+            const patientName = (document.getElementById('patient-name')?.value || 'Paciente').trim() || 'Paciente';
+            const phone = (document.getElementById('patient-phone')?.value || '').trim();
+            const order = (document.getElementById('patient-ot')?.value || '').trim() || 'Sin OT';
+            const abono = parseFloat(document.getElementById('abono-input')?.value || '0') || 0;
+            let subtotal = 0;
+            let message = `*PRESUPUESTO*
+
+*Lic. Alexander de J. Fung R.*
+Optometrista - Contactólogo
+N° COV: 115 | M.P.P.S: 63
+
+*Paciente:* ${patientName}
+*Orden:* ${order}
+${phone ? '*Tel:* ' + phone + '\n' : ''}*Fecha:* ${new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+
+*Detalle:*
+`;
+
+            window.cart.forEach(item => {
+                const p = window.calcularPreciosItem(item);
+                const price = window.metodoPago === 'bs' ? p.etiqueta : p.efectivo;
+                subtotal += price;
+                message += `- ${item.name}${item.desc ? ' - ' + item.desc : ''}: $${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
+            });
+
+            const total = Math.max(subtotal - abono, 0);
+            message += `\n*Subtotal:* $${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
+            message += `*Abono:* $${abono.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
+            message += `*Total:* $${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
+            message += `\nGracias por su confianza.`;
+
+            window.closeBudgetModal();
+            window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+        };
 
         window.sendWhatsApp = function() {
             let name = document.getElementById('patient-name').value || "Paciente"; let phone = document.getElementById('patient-phone').value || ""; let age = document.getElementById('patient-age') ? document.getElementById('patient-age').value || "" : ""; let idCard = document.getElementById('patient-id').value || ""; let orderNum = document.getElementById('patient-ot').value || ""; let rx = window.getRxData(); let odDnp = document.getElementById('odDnp').value || ""; let odAlt = document.getElementById('odAlt').value || ""; let oiDnp = document.getElementById('oiDnp').value || ""; let oiAlt = document.getElementById('oiAlt').value || "";
