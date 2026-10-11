@@ -55,6 +55,7 @@
             <button onclick="window.setCategory('frames')" id="btn-frames" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-glasses text-xl"></i><span class="text-[9px] font-bold uppercase">Monturas</span></button>
             <button onclick="window.setCategory('lenses')" id="btn-lenses" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-layer-group text-xl"></i><span class="text-[9px] font-bold uppercase">Cristales</span></button>
             <button onclick="window.setCategory('contacts')" id="btn-contacts" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-droplet text-xl"></i><span class="text-[9px] font-bold uppercase">L.C.</span></button>
+            <button onclick="window.setCategory('treatments')" id="btn-treatments" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-sun text-xl"></i><span class="text-[9px] font-bold uppercase">Tratamientos</span></button>
         </div>
         <button onclick="window.toggleModal(true)" class="nav-item w-full py-4 text-slate-400 flex flex-col items-center gap-1 hover:text-slate-600 mb-2">
             <i class="fa-solid fa-gear text-xl"></i><span class="text-[9px] font-bold uppercase">Config</span>
@@ -418,7 +419,8 @@
                     { id: 'con-1', category: 'contacts', name: 'Acuvue 1-Day', price: 65, brand: 'Johnson', type: 'sph', desc: 'Lentes diarias esféricas', gender: '', image: '', costo: 26, margen: 60, icon: 'fa-droplet' },
                     { id: 'con-2', category: 'contacts', name: 'Biofinity Toric', price: 110, brand: 'Cooper', type: 'toric', desc: 'Lentes tóricas para astigmatismo', gender: '', image: '', costo: 44, margen: 60, icon: 'fa-droplet' },
                     { id: 'con-3', category: 'contacts', name: 'Air Optix Multifocal', price: 140, brand: 'Alcon', type: 'multi', desc: 'Multifocal para presbicia', gender: '', image: '', costo: 56, margen: 60, icon: 'fa-droplet' }
-                ]
+                ],
+                treatments: []
             };
         }
 
@@ -588,7 +590,7 @@
                 .filter(row => row.length > 0);
 
             if (rows.length === 0) {
-                db = { services: [], frames: [], lenses: [], contacts: [] };
+                db = { services: [], frames: [], lenses: [], contacts: [], treatments: [] };
                 localStorage.setItem('optiSuiteDB', JSON.stringify(db));
                 return;
             }
@@ -641,13 +643,14 @@
                 if (value.includes('montura') || value.includes('frame') || value.includes('marco')) return 'frames';
                 if (value.includes('cristal') || value.includes('lente') || value.includes('lenses') || value.includes('lens')) return 'lenses';
                 if (value.includes('contact') || value.includes('contacto')) return 'contacts';
+                if (value.includes('tratamiento') || value.includes('treatment')) return 'treatments';
                 if (value.includes('serv')) return 'services';
                 return value;
             };
 
             const headerRow = parseCsvRow(rows[0]);
             const normalizedHeader = headerRow.map(normalizeHeader);
-            db = { services: [], frames: [], lenses: [], contacts: [] };
+            db = { services: [], frames: [], lenses: [], contacts: [], treatments: [] };
 
             for (let i = 1; i < rows.length; i++) {
                 const clean = parseCsvRow(rows[i]);
@@ -710,7 +713,7 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
             
-            const titles = { services:['Servicios Clínicos','Honorarios'], frames:['Monturas','Catálogo'], lenses: ['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'] };
+            const titles = { services:['Servicios Clínicos','Honorarios'], frames:['Monturas','Catálogo'], lenses: ['Cristales','Tecnología'], contacts:['Lentes de Contacto','Insumos'], treatments:['Tratamientos','Catálogo'] };
             document.getElementById('page-title').innerText = titles[cat][0];
             document.getElementById('page-subtitle').innerText = titles[cat][1];
             
