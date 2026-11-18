@@ -252,18 +252,22 @@
                 
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                     <h3 class="font-bold text-sm text-slate-800 mb-3"><i class="fa-solid fa-money-bill-transfer text-green-600"></i> Panel Financiero y Tasas</h3>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white p-2 rounded border border-slate-200 shadow-sm">
-                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">1. Tasa Lab (Pago)</label>
-                            <input type="number" id="input-prov" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-blue-600" title="Tasa a la que te factura el laboratorio">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">1. Tasa de Cambio</label>
+                            <input type="number" id="input-cambio" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-blue-600" title="Tasa diaria de cambio del dólar">
                         </div>
                         <div class="bg-white p-2 rounded border border-slate-200 shadow-sm">
-                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">2. Tasa Repo (Calle)</label>
-                            <input type="number" id="input-repo" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-green-600" title="Tasa a la que compras dólares">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">2. Tasa del Euro</label>
+                            <input type="number" id="input-euro" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-slate-700 outline-none focus:text-green-600" title="Tasa del euro para conversiones">
+                        </div>
+                        <div class="bg-white p-2 rounded border border-slate-200 shadow-sm border-b-2 border-b-green-500">
+                            <label class="text-[9px] font-bold text-green-600 uppercase block mb-1">3. Tasa de Reposición</label>
+                            <input type="number" id="input-reposicion" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-green-700 outline-none" title="Tasa de reposición / costo de compra">
                         </div>
                         <div class="bg-white p-2 rounded border border-slate-200 shadow-sm border-b-2 border-b-blue-500">
-                            <label class="text-[9px] font-bold text-blue-600 uppercase block mb-1">3. Tasa Mostrador</label>
-                            <input type="number" id="input-cobro" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-blue-700 outline-none" title="Tasa BCV oficial a la que le cobras al cliente">
+                            <label class="text-[9px] font-bold text-blue-600 uppercase block mb-1">4. Tasa de Mostrador</label>
+                            <input type="number" id="input-mostrador" oninput="window.saveRates()" class="w-full px-1 py-1 bg-transparent text-sm font-black text-blue-700 outline-none" title="Tasa de mostrador para precio final al cliente">
                         </div>
                     </div>
                     
@@ -373,10 +377,14 @@
         const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=0`;
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz8kM-HdyiJh8TU8ynHNG4pvNm3UqWahKcTu30bwKVWuch39P9MShV8fIssIedQM6APXg/exec"; 
 
-        // Variables de Arbitraje Financiero Dual (3 Tasas)
-        window.tasaProv = parseFloat(localStorage.getItem('optiTasaProv')) || 459.45;
-        window.tasaRepo = parseFloat(localStorage.getItem('optiTasaRepo')) || 651.78;
-        window.tasaCobro = parseFloat(localStorage.getItem('optiTasaCobro')) || 459.45;
+        // Variables de tasas financieras
+        window.tasaCambio = parseFloat(localStorage.getItem('optiTasaCambio')) || parseFloat(localStorage.getItem('optiTasaProv')) || 459.45;
+        window.tasaEuro = parseFloat(localStorage.getItem('optiTasaEuro')) || 0;
+        window.tasaReposicion = parseFloat(localStorage.getItem('optiTasaReposicion')) || parseFloat(localStorage.getItem('optiTasaRepo')) || 651.78;
+        window.tasaMostrador = parseFloat(localStorage.getItem('optiTasaMostrador')) || parseFloat(localStorage.getItem('optiTasaCobro')) || 459.45;
+        window.tasaProv = window.tasaCambio;
+        window.tasaRepo = window.tasaReposicion;
+        window.tasaCobro = window.tasaMostrador;
         window.modoInteligente = localStorage.getItem('optiModoInt') === 'false' ? false : true;
         
         window.metodoPago = 'bs'; 
@@ -386,9 +394,10 @@
             if(LOGO_URL && LOGO_URL.length > 5) logoImg.src = LOGO_URL;
             
             // Cargar en el UI modal
-            document.getElementById('input-prov').value = window.tasaProv;
-            document.getElementById('input-repo').value = window.tasaRepo;
-            document.getElementById('input-cobro').value = window.tasaCobro;
+            document.getElementById('input-cambio').value = window.tasaCambio;
+            document.getElementById('input-euro').value = window.tasaEuro;
+            document.getElementById('input-reposicion').value = window.tasaReposicion;
+            document.getElementById('input-mostrador').value = window.tasaMostrador;
             document.getElementById('input-arbitraje').checked = window.modoInteligente;
         });
 
@@ -456,11 +465,19 @@
         // ============================================================
         
         window.saveRates = function() {
-            window.tasaProv = Math.max(parseFloat(document.getElementById('input-prov').value) || 1, 1);
-            window.tasaRepo = Math.max(parseFloat(document.getElementById('input-repo').value) || 1, 1);
-            window.tasaCobro = Math.max(parseFloat(document.getElementById('input-cobro').value) || 1, 1);
+            window.tasaCambio = Math.max(parseFloat(document.getElementById('input-cambio').value) || 1, 1);
+            window.tasaEuro = Math.max(parseFloat(document.getElementById('input-euro').value) || 0, 0);
+            window.tasaReposicion = Math.max(parseFloat(document.getElementById('input-reposicion').value) || 1, 1);
+            window.tasaMostrador = Math.max(parseFloat(document.getElementById('input-mostrador').value) || 1, 1);
+            window.tasaProv = window.tasaCambio;
+            window.tasaRepo = window.tasaReposicion;
+            window.tasaCobro = window.tasaMostrador;
             window.modoInteligente = document.getElementById('input-arbitraje').checked;
             
+            localStorage.setItem('optiTasaCambio', window.tasaCambio);
+            localStorage.setItem('optiTasaEuro', window.tasaEuro);
+            localStorage.setItem('optiTasaReposicion', window.tasaReposicion);
+            localStorage.setItem('optiTasaMostrador', window.tasaMostrador);
             localStorage.setItem('optiTasaProv', window.tasaProv);
             localStorage.setItem('optiTasaRepo', window.tasaRepo);
             localStorage.setItem('optiTasaCobro', window.tasaCobro);
@@ -489,7 +506,13 @@
             const margenBase = Number(item.margen) > 0 ? Math.min(Number(item.margen), 99.9) : 60;
             const costoFacial = item.category === 'lenses' || item.category === 'treatments' ? costoBase * 2 : costoBase;
 
-            if (item.category !== 'lenses' && item.category !== 'contact_lenses' && item.category !== 'contacts') {
+            const usesArbitration = item.category === 'lenses'
+                || item.category === 'contact_lenses'
+                || item.category === 'contacts'
+                || item.category === 'frames'
+                || item.category === 'treatments';
+
+            if (!usesArbitration) {
                 const precioFinal = costoFacial / (1 - (margenBase / 100));
                 const etiqueta = Math.ceil(precioFinal / 5) * 5;
                 return { etiqueta, efectivo: etiqueta, bs: etiqueta * window.tasaCobro };
@@ -889,7 +912,11 @@
                 let htmlPrecios = '';
                 let p = window.calcularPreciosItem(item);
 
-                if (item.category === 'lenses' || item.category === 'contacts' || item.category === 'contact_lenses') {
+                if (item.category === 'lenses'
+                    || item.category === 'contacts'
+                    || item.category === 'contact_lenses'
+                    || item.category === 'frames'
+                    || item.category === 'treatments') {
                     htmlPrecios = `
                         <div class="flex justify-between items-end mt-3 pt-3 border-t border-slate-100 relative min-h-[60px]">
                             <div class="flex flex-col">
@@ -975,8 +1002,11 @@
             if(!c) return; c.innerHTML = ''; if(count) count.innerText = window.cart.length;
             if(window.cart.length===0) { c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-300 py-4"><i class="fa-solid fa-cart-shopping text-2xl mb-2"></i><p class="text-xs">Vacío</p></div>'; window.updateBalance(); return; }
             window.cart.forEach((x,i)=>{ 
-                let p = window.calcularPreciosItem(x); let displayPrice = (window.metodoPago === 'bs') ? p.etiqueta : p.efectivo;
-                c.innerHTML+=`<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid ${x.icon||'fa-box'} text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">${x.name}</div><div class="text-[10px] text-slate-400">$${displayPrice.toLocaleString('en-US')}</div></div></div><button onclick="window.removeFromCart(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>`; 
+                let p = window.calcularPreciosItem(x);
+                let displayPrice = (window.metodoPago === 'bs')
+                    ? `$${p.etiqueta.toLocaleString('en-US')} · Bs ${p.bs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
+                    : `$${p.efectivo.toLocaleString('en-US')} efectivo`;
+                c.innerHTML+=`<div class="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm fade-in mb-1"><div class="flex items-center gap-2 overflow-hidden"><div class="w-8 h-8 rounded flex-shrink-0 bg-slate-100 flex items-center justify-center text-xs overflow-hidden"><i class="fa-solid ${x.icon||'fa-box'} text-slate-500"></i></div><div class="min-w-0"><div class="text-xs font-bold text-slate-700 truncate">${x.name}</div><div class="text-[10px] text-slate-400">${displayPrice}</div></div></div><button onclick="window.removeFromCart(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-trash-can"></i></button></div>`; 
             });
             window.updateBalance();
         };
